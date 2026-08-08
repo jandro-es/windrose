@@ -21,9 +21,6 @@ const CMD_TIMEOUT: Duration = Duration::from_secs(5);
 const POLL_INTERVAL: Duration = Duration::from_millis(20);
 
 /// Everything Windrose is allowed to ask the operating system.
-// Until Task 11 wires `gather()` into `main`, the only non-test caller of these
-// methods does not exist yet. Remove this allow when that lands.
-#[allow(dead_code)]
 pub trait SysCtx {
     /// Run a command, returning trimmed stdout when it exits successfully.
     ///
@@ -45,8 +42,6 @@ pub trait SysCtx {
 }
 
 /// The production implementation, talking to the real machine.
-// Wired up by `gather()` in Task 11; nothing references it before then.
-#[allow(dead_code)]
 pub struct RealSys;
 
 impl SysCtx for RealSys {

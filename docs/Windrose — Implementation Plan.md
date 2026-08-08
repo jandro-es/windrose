@@ -484,9 +484,9 @@ fn low_ram_perf_check_recommends_smaller_quant() {
 
 **Interfaces:** Produces `ScanResult { hardware: HardwareProfile, detections: Vec<Detection>, score: DeviceScore, health: Vec<CheckResult>, perf: Vec<CheckResult> }` with `gather(sys) -> ScanResult`, plus `render_text`, `render_markdown`, `render_json` (serde). All three renderers group by `Category` with friendly category headers ("Runs on your Mac", "Speed-optimised engines", "Built into macOS", "Cloud services").
 
-- [ ] **Step 1: Failing tests:** snapshot-style asserts on `render_markdown` for a fixture `ScanResult` (contains all four category headers, a ✅/⚠️/❌ marker per availability state, and the score block); `render_json` round-trips through `serde_json::from_str::<serde_json::Value>`.
-- [ ] **Step 2: FAIL → implement renderers + wire subcommands** (`scan` ⇒ text or `--json`; `report --format md|json` ⇒ stdout; `score`/`doctor` print their slices; doctor prints fixes only after an interactive `[y/N] Show setup steps?` prompt — skipped and defaulted to no when stdout is not a TTY).
-- [ ] **Step 3: Manually run `cargo run -- scan` on the real machine (only manual step; unit tests stay mocked). Commit** `feat: scan, score, doctor and report commands`.
+- [x] **Step 1: Failing tests:** snapshot-style asserts on `render_markdown` for a fixture `ScanResult` (contains all four category headers, a ✅/⚠️/❌ marker per availability state, and the score block); `render_json` round-trips through `serde_json::from_str::<serde_json::Value>`.
+- [x] **Step 2: FAIL → implement renderers + wire subcommands** (`scan` ⇒ text or `--json`; `report --format md|json` ⇒ stdout; `score`/`doctor` print their slices; doctor prints fixes only after an interactive `[y/N] Show setup steps?` prompt — skipped and defaulted to no when stdout is not a TTY).
+- [x] **Step 3: Manually run `cargo run -- scan` on the real machine (only manual step; unit tests stay mocked). Commit** `feat: scan, score, doctor and report commands`.
 
 ---
 

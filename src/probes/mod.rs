@@ -70,8 +70,6 @@ pub fn registry() -> Vec<Box<dyn Probe>> {
 }
 
 /// Run every registered probe against this machine.
-// Consumed by `gather()` in Task 11; remove this allow when that lands.
-#[allow(dead_code)]
 pub fn run_all(sys: &(dyn SysCtx + Sync)) -> Vec<Detection> {
     run_probes(&registry(), sys)
 }

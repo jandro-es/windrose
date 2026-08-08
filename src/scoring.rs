@@ -31,9 +31,6 @@ const SCORE_FLOOR: f32 = 5.0;
 /// Plain-English note explaining the `(Q4)` in every tier label. Renderers must
 /// show this wherever tier labels appear; the labels themselves are fixed
 /// strings that reports and tests match on.
-// Rendered by `report.rs` in Task 11 and the TUI in Task 13; remove this allow
-// when the first renderer shows it.
-#[allow(dead_code)]
 pub const QUANTISATION_NOTE: &str = "\"Q4\" means the model has been compressed to roughly a quarter of its original size so it \
      fits in memory. It is the normal way to run models locally, and costs a little accuracy.";
 
@@ -125,8 +122,6 @@ const SIZE_CLASSES: [SizeClass; 5] = [
 ];
 
 /// Rate this Mac's ability to run AI models on its own.
-// Consumed by `gather()` in Task 11; remove this allow when that lands.
-#[allow(dead_code)]
 pub fn score(hw: &HardwareProfile) -> DeviceScore {
     let memory = memory_score(hw.ram_gb);
     let compute = compute_score(hw);

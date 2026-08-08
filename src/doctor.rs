@@ -160,8 +160,6 @@ const RUNTIME_GUIDES: &[RuntimeGuide] = &[
 /// **Deviation from the plan's signature:** this takes `sys` because the
 /// prerequisite Homebrew check the plan asks for cannot be answered from
 /// detections alone. Everything reading the OS goes through `SysCtx`.
-// Consumed by `gather()` in Task 11; remove this allow when that lands.
-#[allow(dead_code)]
 pub fn health_checks(
     dets: &[Detection],
     _hw: &HardwareProfile,

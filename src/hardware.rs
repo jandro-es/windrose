@@ -41,8 +41,6 @@ pub struct HardwareProfile {
 }
 
 /// Build a [`HardwareProfile`] by asking the machine about itself.
-// Consumed by `gather()` in Task 11; remove this allow when that lands.
-#[allow(dead_code)]
 pub fn profile(sys: &dyn SysCtx) -> HardwareProfile {
     let chip_name = sys
         .run("sysctl", &["-n", "machdep.cpu.brand_string"])
