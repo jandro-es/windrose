@@ -7,6 +7,7 @@
 //! leave a working prompt behind.
 
 mod app;
+mod help;
 mod view;
 
 use app::{Action, App, Msg, update};

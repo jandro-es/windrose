@@ -522,9 +522,9 @@ fn help_overlay_toggles_on_question_mark() { /* '?' toggles show_help */ }
 
 **Interfaces:** Consumes `ScanResult`. Produces per-tab render fns `draw_overview`, `draw_detections(category filter)`, `draw_score`, and `help::glossary() -> Vec<(&str, &str)>` (term → beginner explanation, shown in the `?` overlay).
 
-- [ ] **Step 1: Failing TestBackend tests:** Overview shows counts ("5 ready · 2 need attention · 4 not installed") + hardware summary line; Local tab lists detections as a `Table` with availability icons and the `friendly` line of the selected row in a detail pane; Score tab renders `Gauge` for overall + a tier table where every row includes its `advice` string; glossary contains entries for at least: model, quantisation, token, context window, on-device, API key.
-- [ ] **Step 2: FAIL → implement** (selection follows `app.selected`; `Enter` on a detection opens a detail popup with all detail rows + "What is this?" friendly paragraph).
-- [ ] **Step 3: Pass. Commit** `feat: overview, provider and score views`.
+- [x] **Step 1: Failing TestBackend tests:** Overview shows counts ("5 ready · 2 need attention · 4 not installed") + hardware summary line; Local tab lists detections as a `Table` with availability icons and the `friendly` line of the selected row in a detail pane; Score tab renders `Gauge` for overall + a tier table where every row includes its `advice` string; glossary contains entries for at least: model, quantisation, token, context window, on-device, API key.
+- [x] **Step 2: FAIL → implement** (selection follows `app.selected`; `Enter` on a detection opens a detail popup with all detail rows + "What is this?" friendly paragraph).
+- [x] **Step 3: Pass. Commit** `feat: overview, provider and score views`.
 
 ---
 

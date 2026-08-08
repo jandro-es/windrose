@@ -65,6 +65,8 @@ pub struct App {
     pub tab: Tab,
     pub selected: usize,
     pub show_help: bool,
+    /// Whether the detail popup for the selected option is open.
+    pub show_detail: bool,
     pub doctor: DoctorState,
 }
 
@@ -89,7 +91,17 @@ impl App {
             tab: Tab::Overview,
             selected: 0,
             show_help: false,
+            show_detail: false,
             doctor: DoctorState::default(),
+        }
+    }
+
+    /// The option the cursor is on, when the current tab lists options.
+    pub fn selected_detection(&self) -> Option<&crate::model::Detection> {
+        match self.tab {
+            Tab::Local => self.local_detections().nth(self.selected),
+            Tab::Cloud => self.cloud_detections().nth(self.selected),
+            _ => None,
         }
     }
 
@@ -126,10 +138,14 @@ pub fn update(app: &mut App, msg: Msg) -> Action {
         return Action::Continue;
     };
 
-    // The help overlay swallows input: any key closes it, so a reader cannot
-    // get stuck behind it wondering which key dismisses it.
+    // Overlays swallow input: any key closes them, so a reader cannot get
+    // stuck behind one wondering which key dismisses it.
     if app.show_help {
         app.show_help = false;
+        return Action::Continue;
+    }
+    if app.show_detail {
+        app.show_detail = false;
         return Action::Continue;
     }
 
@@ -159,6 +175,7 @@ pub fn update(app: &mut App, msg: Msg) -> Action {
         KeyCode::Enter if app.tab == Tab::Doctor => {
             app.doctor.showing_fix = !app.doctor.showing_fix;
         }
+        KeyCode::Enter if app.selected_detection().is_some() => app.show_detail = true,
         _ => {}
     }
     Action::Continue
@@ -173,6 +190,7 @@ fn select_tab(app: &mut App, tab: Tab) {
     // the last one would point at nothing meaningful.
     app.selected = 0;
     app.doctor.showing_fix = false;
+    app.show_detail = false;
 }
 
 /// Move within the current list, stopping at the ends rather than wrapping —
@@ -186,6 +204,7 @@ fn move_selection(app: &mut App, delta: isize) {
     let last = count - 1;
     app.selected = app.selected.saturating_add_signed(delta).min(last);
     app.doctor.showing_fix = false;
+    app.show_detail = false;
 }
 
 #[cfg(test)]
@@ -479,6 +498,66 @@ mod tests {
 
         update(&mut app, key_code(KeyCode::Enter));
         assert!(!app.doctor.showing_fix);
+    }
+
+    /// Enter on a listed option opens its detail popup.
+    #[test]
+    fn enter_opens_the_detail_popup_for_the_selected_option() {
+        let mut app = App::with_fixture();
+        update(&mut app, key('2'));
+        assert!(!app.show_detail);
+
+        update(&mut app, key_code(KeyCode::Enter));
+        assert!(app.show_detail);
+        assert_eq!(app.selected_detection().map(|d| d.id), Some("ollama"));
+    }
+
+    /// Like the help overlay, the detail popup swallows the key that closes it.
+    #[test]
+    fn any_key_closes_the_detail_popup_without_acting() {
+        let mut app = App::with_fixture();
+        update(&mut app, key('2'));
+        update(&mut app, key_code(KeyCode::Enter));
+
+        update(&mut app, key('3'));
+        assert!(!app.show_detail);
+        assert_eq!(app.tab, Tab::Local, "the tab should not have changed");
+    }
+
+    /// The popup describes one option, so it must not survive a move.
+    #[test]
+    fn moving_or_switching_tab_closes_the_detail_popup() {
+        let mut app = App::with_fixture();
+        update(&mut app, key('2'));
+        update(&mut app, key_code(KeyCode::Enter));
+        update(&mut app, key_code(KeyCode::Down));
+        assert!(!app.show_detail);
+
+        update(&mut app, key_code(KeyCode::Enter));
+        assert!(app.show_detail);
+        update(&mut app, key('3'));
+        assert!(!app.show_detail);
+    }
+
+    /// Tabs without a list have nothing to open.
+    #[test]
+    fn enter_opens_nothing_on_tabs_without_options() {
+        let mut app = App::with_fixture();
+        for tab_key in ['1', '4'] {
+            update(&mut app, key(tab_key));
+            update(&mut app, key_code(KeyCode::Enter));
+            assert!(!app.show_detail, "opened a popup on {}", app.tab.title());
+        }
+    }
+
+    #[test]
+    fn selected_detection_follows_the_cursor() {
+        let mut app = App::with_fixture();
+        update(&mut app, key('3'));
+
+        assert_eq!(app.selected_detection().map(|d| d.id), Some("claude"));
+        update(&mut app, key_code(KeyCode::Down));
+        assert_eq!(app.selected_detection().map(|d| d.id), Some("groq"));
     }
 
     #[test]
