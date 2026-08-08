@@ -563,10 +563,13 @@ fn help_overlay_toggles_on_question_mark() { /* '?' toggles show_help */ }
 
 **Interfaces:** Produces the release toolchain used by Task 17. Every script: `#!/usr/bin/env bash`, `set -euo pipefail`, a top comment block (what/why/usage), and `--help`.
 
-- [ ] **Step 1: `build.sh`** — `cargo build --release --target aarch64-apple-darwin` + `--target x86_64-apple-darwin`, then `lipo -create -output dist/windrose` both binaries; prints the output path and `file` output. Test by running it (script tests are manual-verify by design; note this in the script header).
-- [ ] **Step 2: `bump-version.sh <major|minor|patch>`** — reads version from `Cargo.toml`, computes next semver, rewrites `Cargo.toml`, runs `cargo check` (refreshes lockfile), moves CHANGELOG `[Unreleased]` under the new `[X.Y.Z] - $(date +%F)` heading, commits `chore: release vX.Y.Z`, creates annotated tag `vX.Y.Z`. Refuses to run with a dirty working tree.
-- [ ] **Step 3: `release.sh`** — `cargo fmt --check && cargo clippy -- -D warnings && cargo test`, then `bump-version.sh "$1"`, then `git push && git push --tags` (tag push triggers Task 17's workflow). Prints "Release vX.Y.Z started — watch GitHub Actions".
-- [ ] **Step 4: Dry-run bump on a branch, verify tag + changelog, delete branch. Commit** `chore: build, bump and release scripts`.
+- [x] **Step 1: `build.sh`** — `cargo build --release --target aarch64-apple-darwin` + `--target x86_64-apple-darwin`, then `lipo -create -output dist/windrose` both binaries; prints the output path and `file` output. Test by running it (script tests are manual-verify by design; note this in the script header).
+- [x] **Step 2: `bump-version.sh <major|minor|patch>`** — reads version from `Cargo.toml`, computes next semver, rewrites `Cargo.toml`, runs `cargo check` (refreshes lockfile),
+  **regenerates `man/` and includes it in the release commit** (the pages embed the version in their
+  `.TH` header and VERSION section, so without this every release leaves the pages stale and fails
+  the drift check at the start of the *next* release — found by running `release.sh --dry-run`), moves CHANGELOG `[Unreleased]` under the new `[X.Y.Z] - $(date +%F)` heading, commits `chore: release vX.Y.Z`, creates annotated tag `vX.Y.Z`. Refuses to run with a dirty working tree.
+- [x] **Step 3: `release.sh`** — `cargo fmt --check && cargo clippy -- -D warnings && cargo test`, then `bump-version.sh "$1"`, then `git push && git push --tags` (tag push triggers Task 17's workflow). Prints "Release vX.Y.Z started — watch GitHub Actions".
+- [x] **Step 4: Dry-run bump on a branch, verify tag + changelog, delete branch. Commit** `chore: build, bump and release scripts`.
 
 ---
 
