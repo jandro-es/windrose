@@ -6,6 +6,8 @@ rust-version = "1.85"
 description = "Discover and assess every AI option on your Mac"
 license = "MIT"
 repository = "https://github.com/jandro/windrose"
+# Used by the generated Homebrew formula.
+homepage = "https://github.com/jandro/windrose"
 readme = "README.md"
 keywords = ["ai", "llm", "macos", "tui", "cli"]
 categories = ["command-line-utilities"]
@@ -23,3 +25,12 @@ ureq = "2"
 [profile.release]
 lto = true
 strip = true
+
+# The profile that 'dist' will build with.
+#
+# dist defaults this to thin LTO; matched to the release profile above so the
+# binary that ships is the same one `cargo build --release` and scripts/build.sh
+# produce locally.
+[profile.dist]
+inherits = "release"
+lto = true

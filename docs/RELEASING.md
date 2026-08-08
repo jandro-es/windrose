@@ -55,15 +55,41 @@ Then check `dist-workspace.toml` contains:
 ```toml
 publish-jobs = ["homebrew"]
 tap = "jandro/homebrew-tap"
-include = ["man/windrose.1", "README.md", "LICENSE"]
+include = ["man/windrose.1"]
 ```
 
-`include` is what puts the manual page in the tarball, so the generated formula
-can install it and `man windrose` works after `brew install`. Verify that in the
-generated formula; if the man page is missing, use `extra-artifacts` instead.
+`include` puts the manual page in each tarball. Do **not** also list
+`README.md`, `LICENSE` or `CHANGELOG.md` — dist finds those itself, and naming
+them again ships two copies of each. `dist plan` shows the duplicates.
 
 Commit both files. `dist-workspace.toml` is meant to be edited by hand;
 `release.yml` is not.
+
+### Known gap: `man windrose` after `brew install`
+
+**cargo-dist 0.32 does not install man pages.** Verified by generating the
+formula and reading it: the install block is
+
+```ruby
+bin.install "windrose"
+...
+pkgshare.install(*leftover_contents)
+```
+
+so `windrose.1` lands in `share/windrose/` rather than `share/man/man1/`, where
+`man` looks. The shell installer does not handle man pages either. The page
+*is* in the tarball, so nothing is lost — it just is not on the manual path.
+
+Until this is resolved, one of:
+
+- Accept it. `windrose --help` is thorough, and the tarball carries the page for
+  anyone who wants it:
+  `sudo install -m644 windrose.1 "$(brew --prefix)/share/man/man1/"`
+- Maintain the formula by hand in the tap, adding `man1.install "windrose.1"`.
+  This costs the automatic formula update on every release.
+- Track cargo-dist upstream for man-page support and re-check on each bump.
+
+Re-test this after every cargo-dist upgrade — see the verification list below.
 
 ### 3. Create the tap repository
 
@@ -108,8 +134,15 @@ curl --proto '=https' --tlsv1.2 -LsSf \
   https://github.com/jandro/windrose/releases/latest/download/windrose-installer.sh | sh
 ```
 
-If the formula installs the binary but `man windrose` fails, the man page is not
-reaching the tarball — revisit `include` in step 2.
+`man windrose` is expected to **fail** today — see the known gap above. Check
+that the page is at least present in the installed tree:
+
+```bash
+ls "$(brew --prefix)/share/windrose/windrose.1"
+```
+
+If a future cargo-dist installs it properly, `man windrose` starts working and
+the known-gap section can go.
 
 ## Undoing a release
 

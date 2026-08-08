@@ -1,0 +1,40 @@
+[workspace]
+members = ["cargo:."]
+
+# Config for 'dist'.
+#
+# This file is meant to be edited by hand. The workflow it drives,
+# .github/workflows/release.yml, is NOT — regenerate that with `dist generate`
+# after changing anything here.
+[dist]
+# The preferred dist version to use in CI (Cargo.toml SemVer syntax)
+cargo-dist-version = "0.32.0"
+# CI backends to support
+ci = "github"
+# The installers to generate for each app.
+#
+# "shell" is the curl-pipe installer for people who do not use Homebrew;
+# "homebrew" publishes a formula to the tap below.
+installers = ["shell", "homebrew"]
+# Target platforms to build apps for (Rust target-triple syntax).
+#
+# Windrose reads macOS-specific things — sysctl, sw_vers, pmset, /Applications
+# — so these two are the whole world. dist's defaults also list Linux and
+# Windows; building those would produce binaries that cannot work.
+targets = ["aarch64-apple-darwin", "x86_64-apple-darwin"]
+# Which actions to run on pull requests
+pr-run-mode = "plan"
+# Publish jobs to run in CI
+publish-jobs = ["homebrew"]
+# A GitHub repo to push Homebrew formulas to. Users install from it as
+# `jandro/tap`; GitHub requires the `homebrew-` prefix on the repo name.
+tap = "jandro/homebrew-tap"
+# Extra files to include in each tarball.
+#
+# man/windrose.1 is what makes `man windrose` work after installing — the
+# generated formula installs a man page only if one is in the archive.
+#
+# README, LICENSE and CHANGELOG are NOT listed here: dist finds those itself,
+# and naming them again puts two copies of each in every tarball. `dist plan`
+# shows the duplicates if they creep back in.
+include = ["man/windrose.1"]

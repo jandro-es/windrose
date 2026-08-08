@@ -579,10 +579,16 @@ fn help_overlay_toggles_on_question_mark() { /* '?' toggles show_help */ }
 
 **Interfaces:** Consumes tags pushed by `release.sh`. Produces GitHub Release artifacts (per-arch tarballs + installer script) and an auto-updated formula in `jandro/homebrew-tap`.
 
-- [ ] **Step 1:** `dist init` — targets `aarch64-apple-darwin`, `x86_64-apple-darwin`; installers: `shell` (curl-install for the "directly from GitHub" channel) + `homebrew`; `tap = "jandro/homebrew-tap"`; `publish-jobs = ["homebrew"]`.
-- [ ] **Step 2:** Configure man-page + docs inclusion: `include = ["man/windrose.1", "README.md", "LICENSE"]` so the formula can `man1.install "windrose.1"` (cargo-dist's generated formula installs included man pages; verify and, if needed, set `extra-artifacts`).
-- [ ] **Step 3:** Create the `homebrew-tap` repo (empty, with README) and a `HOMEBREW_TAP_TOKEN` fine-grained PAT as a repo secret — document both in `docs/RELEASING.md`.
-- [ ] **Step 4:** Push a `v0.1.0` pre-release tag on a test run; verify: GH Release has artifacts; `brew install jandro/tap/windrose` works; `man windrose` works post-install; curl installer works. **Commit** `chore: cargo-dist release pipeline`.
+- [x] **Step 1:** `dist init` — targets `aarch64-apple-darwin`, `x86_64-apple-darwin`; installers: `shell` (curl-install for the "directly from GitHub" channel) + `homebrew`; `tap = "jandro/homebrew-tap"`; `publish-jobs = ["homebrew"]`.
+- [x] **Step 2:** Configure man-page + docs inclusion: `include = ["man/windrose.1"]`.
+  **Correction, verified with `dist plan` and by reading the generated formula (cargo-dist 0.32):**
+  (a) do *not* list `README.md`/`LICENSE` — dist auto-includes those, and naming them again ships two
+  copies of each in every tarball; (b) the generated formula does **not** `man1.install`. It does
+  `bin.install "windrose"` then dumps leftovers into `pkgshare`, so `windrose.1` lands in
+  `share/windrose/` and `man windrose` does not work after `brew install`. `extra-artifacts` does not
+  fix this. Documented as a known gap in docs/RELEASING.md with three options; needs a decision.
+- [ ] **Step 3 (BLOCKED — needs GitHub account access):** Create the `homebrew-tap` repo (empty, with README) and a `HOMEBREW_TAP_TOKEN` fine-grained PAT as a repo secret — document both in `docs/RELEASING.md`.
+- [ ] **Step 4 (BLOCKED — needs a remote + a published release):** Push a `v0.1.0` pre-release tag on a test run; verify: GH Release has artifacts; `brew install jandro/tap/windrose` works; `man windrose` works post-install; curl installer works. **Commit** `chore: cargo-dist release pipeline`.
 
 ---
 
