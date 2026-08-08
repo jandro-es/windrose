@@ -596,10 +596,13 @@ fn help_overlay_toggles_on_question_mark() { /* '?' toggles show_help */ }
 
 **Files:** Create `README.md`, `docs/ARCHITECTURE.md`, `docs/RELEASING.md`, `LICENSE` (MIT); Modify `docs/SCORING.md` (final pass)
 
-- [ ] **Step 1: README** — hero: what Windrose tells you in one sentence + a TUI screenshot (capture via `vhs` tape or plain screenshot, stored `docs/img/`); Install (Homebrew two-liner first, curl script second, cargo third); Quick start (`windrose`, then `windrose doctor`); a "No jargon" glossary section mirroring `help.rs`; troubleshooting; contributing pointer.
-- [ ] **Step 2: ARCHITECTURE.md** — module map (mirror of *File Structure*), the `SysCtx` mocking rule, and a literal "How to add a new probe in 4 steps" recipe with a code skeleton.
-- [ ] **Step 3: RELEASING.md** — runbook: `./scripts/release.sh patch` and what happens after, tap-token rotation, yanking a bad release.
-- [ ] **Step 4: Final QA sweep** — run `windrose` on the real Mac; check every screen against the plain-language rule; run `cargo clippy -- -D warnings`, `cargo fmt --check`, full test suite; verify `man windrose`, `windrose --help`, README install commands. **Commit** `docs: full documentation set`.
+- [x] **Step 1: README** — hero: what Windrose tells you in one sentence + a TUI screenshot (**deviation:** neither `vhs` nor `asciinema` is installed and a real screen
+  capture is not possible headlessly, so the README embeds a frame rendered through the actual
+  `view()` code via ratatui's `TestBackend` — accurate because it comes from the real renderer,
+  and it stays readable in a plain-text terminal. No `docs/img/` was created); Install (Homebrew two-liner first, curl script second, cargo third); Quick start (`windrose`, then `windrose doctor`); a "No jargon" glossary section mirroring `help.rs`; troubleshooting; contributing pointer.
+- [x] **Step 2: ARCHITECTURE.md** — module map (mirror of *File Structure*), the `SysCtx` mocking rule, and a literal "How to add a new probe in 4 steps" recipe with a code skeleton.
+- [x] **Step 3: RELEASING.md** — runbook: `./scripts/release.sh patch` and what happens after, tap-token rotation, yanking a bad release.
+- [x] **Step 4: Final QA sweep** — run `windrose` on the real Mac; check every screen against the plain-language rule; run `cargo clippy -- -D warnings`, `cargo fmt --check`, full test suite; verify `man windrose`, `windrose --help`, README install commands. **Commit** `docs: full documentation set`.
 
 ---
 

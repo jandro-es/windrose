@@ -48,7 +48,7 @@ pub struct Cli {
 pub enum Command {
     /// Scan this Mac and list every AI option found
     Scan,
-    /// Score how well this Mac can run AI models on-device
+    /// Score how well this Mac can run AI models on its own
     Score,
     /// Check health, guide setup, and suggest performance fixes
     Doctor,

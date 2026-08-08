@@ -114,6 +114,22 @@ the default `GITHUB_TOKEN` is not enough.
 Scope it to the tap repository alone. A token that can also write to the main
 repository is a much larger problem if it leaks, and it buys nothing.
 
+## Rotating the tap token
+
+The token is fine-grained and expires. When it does, releases fail at the
+`homebrew` publish job *after* the GitHub Release has already been created —
+the binaries ship, the formula does not.
+
+1. Mint a replacement with the same scope: `jandro/homebrew-tap` only,
+   **Contents: Read and write**, nothing else.
+2. Replace the `HOMEBREW_TAP_TOKEN` secret in `jandro/windrose`.
+3. Delete the old token so a leaked copy is worthless.
+4. Re-run the failed `homebrew` job from the Actions tab. There is no need to
+   cut a new version — the release artifacts are already published.
+
+Rotate it deliberately rather than waiting for the failure, and set the calendar
+reminder a week before the expiry.
+
 ## Verifying a release
 
 After the first tag, and after any change to the pipeline, check all four:
