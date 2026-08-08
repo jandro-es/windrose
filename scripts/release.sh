@@ -17,6 +17,8 @@
 #        unit tests.
 #
 # Usage: ./scripts/release.sh patch             release a patch version
+#        ./scripts/release.sh current           release the version as it
+#                                               stands — for a first release
 #        ./scripts/release.sh minor --dry-run   check and bump, but do not push
 #        ./scripts/release.sh --help            show this message
 
@@ -38,7 +40,7 @@ for arg in "$@"; do
         --dry-run)
             dry_run=true
             ;;
-        major | minor | patch)
+        major | minor | patch | current)
             part="$arg"
             ;;
         *)
@@ -58,7 +60,11 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
 branch="$(git rev-parse --abbrev-ref HEAD)"
-echo "Releasing a $part version from branch $branch."
+if [[ "$part" == "current" ]]; then
+    echo "Releasing the current version from branch $branch."
+else
+    echo "Releasing a $part version from branch $branch."
+fi
 echo
 
 echo "Checking formatting…"

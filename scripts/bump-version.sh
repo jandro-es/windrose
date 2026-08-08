@@ -19,7 +19,12 @@
 # Usage: ./scripts/bump-version.sh patch    0.1.0 -> 0.1.1
 #        ./scripts/bump-version.sh minor    0.1.0 -> 0.2.0
 #        ./scripts/bump-version.sh major    0.1.0 -> 1.0.0
+#        ./scripts/bump-version.sh current  release 0.1.0 as it stands
 #        ./scripts/bump-version.sh --help   show this message
+#
+#        "current" exists for a first release: the version in Cargo.toml has
+#        never been published, so bumping it would skip it entirely and imply
+#        an earlier release that was withdrawn.
 
 set -euo pipefail
 
@@ -37,11 +42,11 @@ case "$1" in
         usage
         exit 0
         ;;
-    major | minor | patch)
+    major | minor | patch | current)
         part="$1"
         ;;
     *)
-        echo "Expected major, minor or patch — got \"$1\"." >&2
+        echo "Expected major, minor, patch or current — got \"$1\"." >&2
         echo "Try --help." >&2
         exit 2
         ;;
@@ -80,6 +85,7 @@ case "$part" in
     major) major=$((major + 1)); minor=0; patch=0 ;;
     minor) minor=$((minor + 1)); patch=0 ;;
     patch) patch=$((patch + 1)) ;;
+    current) ;;  # release the version already in Cargo.toml
 esac
 next="$major.$minor.$patch"
 tag="v$next"
@@ -89,7 +95,11 @@ if git rev-parse -q --verify "refs/tags/$tag" > /dev/null; then
     exit 1
 fi
 
-echo "Bumping $current -> $next"
+if [[ "$part" == "current" ]]; then
+    echo "Releasing $next as it stands (no version change)"
+else
+    echo "Bumping $current -> $next"
+fi
 
 # Only the [package] version, for the same reason as the read above.
 awk -v next_version="$next" '
