@@ -46,6 +46,12 @@ impl Probe for OllamaProbe {
                 },
             ));
             details.push(("Local address".to_string(), TAGS_URL.to_string()));
+            // The doctor's memory advice needs a size, and most installed
+            // models cannot supply one from their name — `codestral:latest` is
+            // a 22B model. The API reports the real figure, so carry it here.
+            if let Some(largest) = largest_model_size(body) {
+                details.push(("Largest model".to_string(), largest));
+            }
         }
 
         // The API answering is what makes Ollama usable. Ollama.app can serve
@@ -95,6 +101,35 @@ fn model_names(body: &str) -> Vec<String> {
             )
         })
         .unwrap_or_default()
+}
+
+/// The biggest installed model, as Ollama reports it (`"22.2B"`, `"137M"`).
+///
+/// Sizes live in `details.parameter_size` rather than in the name: only some
+/// tags spell the size out, and `:latest` never does.
+fn largest_model_size(body: &str) -> Option<String> {
+    let parsed: serde_json::Value = serde_json::from_str(body).ok()?;
+    parsed
+        .get("models")?
+        .as_array()?
+        .iter()
+        .filter_map(|m| {
+            let raw = m.get("details")?.get("parameter_size")?.as_str()?;
+            Some((billions(raw)?, raw.to_string()))
+        })
+        .max_by(|(a, _), (b, _)| a.total_cmp(b))
+        .map(|(_, raw)| raw)
+}
+
+/// `"22.2B"` becomes 22.2; `"137M"` becomes 0.137. Used only for comparison.
+fn billions(raw: &str) -> Option<f32> {
+    let (number, unit) = raw.split_at(raw.len().checked_sub(1)?);
+    let value: f32 = number.parse().ok()?;
+    match unit {
+        "B" | "b" => Some(value),
+        "M" | "m" => Some(value / 1000.0),
+        _ => None,
+    }
 }
 
 #[cfg(test)]
@@ -203,6 +238,57 @@ mod tests {
         let d = OllamaProbe.detect(&sys);
 
         assert_eq!(d.availability, Availability::Ready);
+    }
+
+    /// Sizes come from the API, not the name. On a real machine most tags are
+    /// `:latest`, which says nothing about how big the model is.
+    #[test]
+    fn reports_the_largest_model_size_even_when_names_hide_it() {
+        let body = r#"{"models":[
+            {"name":"qwen3:4b","details":{"parameter_size":"4.0B"}},
+            {"name":"codestral:latest","details":{"parameter_size":"22.2B"}},
+            {"name":"nomic-embed-text:latest","details":{"parameter_size":"137M"}}
+        ]}"#;
+        let sys = MockSys::new().with_http("http://localhost:11434/api/tags", body);
+        let d = OllamaProbe.detect(&sys);
+
+        assert!(
+            d.details
+                .iter()
+                .any(|(k, v)| k == "Largest model" && v == "22.2B"),
+            "details were {:?}",
+            d.details
+        );
+    }
+
+    /// Millions must not outrank billions on a plain string comparison.
+    #[test]
+    fn model_sizes_are_compared_numerically() {
+        let body = r#"{"models":[
+            {"name":"small:latest","details":{"parameter_size":"900M"}},
+            {"name":"big:latest","details":{"parameter_size":"7.0B"}}
+        ]}"#;
+        let sys = MockSys::new().with_http("http://localhost:11434/api/tags", body);
+        let d = OllamaProbe.detect(&sys);
+
+        assert!(
+            d.details
+                .iter()
+                .any(|(k, v)| k == "Largest model" && v == "7.0B")
+        );
+    }
+
+    /// Older payloads without a size must not break the probe or invent a row.
+    #[test]
+    fn missing_size_information_is_simply_omitted() {
+        let sys = MockSys::new().with_http(
+            "http://localhost:11434/api/tags",
+            r#"{"models":[{"name":"mystery:latest"}]}"#,
+        );
+        let d = OllamaProbe.detect(&sys);
+
+        assert_eq!(d.availability, Availability::Ready);
+        assert!(!d.details.iter().any(|(k, _)| k == "Largest model"));
     }
 
     /// The plain-language rule: anyone who has never heard of Ollama should

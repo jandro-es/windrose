@@ -439,8 +439,16 @@ fn intel_8gb_scores_low_with_cloud_advice() {
 **Files:** Create `src/doctor.rs`
 
 **Interfaces:** Produces `health_checks()` and `performance_checks()` (signatures in *Core interfaces*). Consumes `Detection` list + `HardwareProfile`.
+**Correction:** both signatures also need `sys: &dyn SysCtx`. Step 2 mandates two checks that read the
+OS — Homebrew as the ordered-first prerequisite, and free disk space via `df` — and neither can be
+answered from detections. Routing them through `SysCtx` is the architecture rule anyway, and keeps
+doctor fully testable against `MockSys`.
+**Also:** the 'RAM headroom vs installed model sizes' check needs model *sizes*, which Task 5 did not
+capture. Real installs make name-based inference useless — on the dev machine 5 of 6 tags are
+`:latest` (`codestral:latest` is 22.2B). Ollama's probe now emits a `Largest model` detail row from
+the API's `details.parameter_size`.
 
-- [ ] **Step 1: Failing tests:**
+- [x] **Step 1: Failing tests:**
 
 ```rust
 #[test]
@@ -462,11 +470,11 @@ fn low_ram_perf_check_recommends_smaller_quant() {
 }
 ```
 
-- [ ] **Step 2: FAIL → implement check catalogue** (each `FixGuide` has numbered plain-English `steps` for beginners AND copy-pasteable `commands`, plus `docs_url`):
+- [x] **Step 2: FAIL → implement check catalogue** (each `FixGuide` has numbered plain-English `steps` for beginners AND copy-pasteable `commands`, plus `docs_url`):
   - *Health:* per local provider — installed? running? has ≥1 model? per cloud provider — credential present? CLI present? Apple FM — OS new enough? Apple Intelligence on? Homebrew itself installed (prerequisite check, ordered first)?
   - *Performance:* RAM headroom vs installed model sizes (suggest 4-bit quants / smaller models); Ollama context-length and keep-alive hints; MLX suggested over llama.cpp on Apple Silicon for supported models; laptop thermal note (suggest mains power for long runs); disk free space ≥ 20 GB for model downloads (`df` via SysCtx); recommend enabling Foundation Models when macos ≥ 26 but unused.
   - Setup guidance is *opt-in by design*: the engine only returns guides; frontends ask the user before showing install flows (spec: "if the user chooses to").
-- [ ] **Step 3: Pass. Commit** `feat: doctor health and performance engine`.
+- [x] **Step 3: Pass. Commit** `feat: doctor health and performance engine`.
 
 ---
 
