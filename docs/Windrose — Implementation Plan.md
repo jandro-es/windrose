@@ -534,9 +534,13 @@ fn help_overlay_toggles_on_question_mark() { /* '?' toggles show_help */ }
 
 **Interfaces:** Produces `DoctorState { results: Vec<CheckResult>, selected: usize, mode: DoctorMode }`, `enum DoctorMode { List, FixDetail }`. Consumes `health_checks` + `performance_checks`.
 
-- [ ] **Step 1: Failing update tests:** selecting a Fail check and pressing `Enter` ⇒ `DoctorMode::FixDetail`; in FixDetail, `c` copies the current command to clipboard via `pbcopy` through `SysCtx::run` (assert MockSys recorded the call — add a `calls()` recorder to MockSys in this task); `Esc` returns to list. Windrose **never executes install commands itself** — it copies them and explains, keeping the user in control (spec: guide, don't assume skills; safety: no unattended system changes).
-- [ ] **Step 2: Failing render test:** FixDetail pane shows numbered human steps first, commands in a bordered block second, and footer `" c copy command · Esc back "`.
-- [ ] **Step 3: FAIL → implement.** **Step 4: Pass. Commit** `feat: doctor wizard in tui`.
+- [x] **Step 1: Failing update tests:** selecting a Fail check and pressing `Enter` ⇒ `DoctorMode::FixDetail`; in FixDetail, `c` copies the current command to clipboard via `pbcopy` through `SysCtx::run`
+  (**correction, verified on hardware:** this cannot go through `SysCtx::run`. `pbcopy` reads its input
+  from stdin and `run` gives children a null stdin, so `run("pbcopy", …)` copies nothing — it silently
+  *wipes* the clipboard, destroying whatever the user had there, while a MockSys test recording the
+  call passes happily. `SysCtx` gained `copy_to_clipboard`, which pipes the text in properly.) (assert MockSys recorded the call — add a `calls()` recorder to MockSys in this task); `Esc` returns to list. Windrose **never executes install commands itself** — it copies them and explains, keeping the user in control (spec: guide, don't assume skills; safety: no unattended system changes).
+- [x] **Step 2: Failing render test:** FixDetail pane shows numbered human steps first, commands in a bordered block second, and footer `" c copy command · Esc back "`.
+- [x] **Step 3: FAIL → implement.** **Step 4: Pass. Commit** `feat: doctor wizard in tui`.
 
 ---
 

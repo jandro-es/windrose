@@ -39,6 +39,14 @@ pub trait SysCtx {
 
     /// The current user's home directory.
     fn home(&self) -> PathBuf;
+
+    /// Put text on the clipboard, reporting whether it worked.
+    ///
+    /// This cannot go through [`SysCtx::run`]: `pbcopy` takes its input on
+    /// stdin, and `run` deliberately gives children a null stdin. Calling
+    /// `run("pbcopy", …)` does not copy anything — it silently replaces the
+    /// clipboard with nothing, throwing away whatever the user had there.
+    fn copy_to_clipboard(&self, text: &str) -> bool;
 }
 
 /// The production implementation, talking to the real machine.
@@ -110,6 +118,29 @@ impl SysCtx for RealSys {
             .map(PathBuf::from)
             .unwrap_or_else(|| PathBuf::from("/"))
     }
+
+    fn copy_to_clipboard(&self, text: &str) -> bool {
+        use std::io::Write;
+        use std::process::{Command, Stdio};
+
+        let Ok(mut child) = Command::new("pbcopy")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+        else {
+            return false;
+        };
+
+        // Take the pipe so it is dropped — and therefore closed — before the
+        // wait below. `pbcopy` does not exit until its input ends.
+        let written = match child.stdin.take() {
+            Some(mut pipe) => pipe.write_all(text.as_bytes()).is_ok(),
+            None => false,
+        };
+
+        child.wait().map(|s| s.success()).unwrap_or(false) && written
+    }
 }
 
 #[cfg(test)]
@@ -121,6 +152,7 @@ pub mod testing {
     use super::SysCtx;
     use std::collections::{HashMap, HashSet};
     use std::path::PathBuf;
+    use std::sync::Mutex;
 
     #[derive(Default)]
     pub struct MockSys {
@@ -129,6 +161,11 @@ pub mod testing {
         envs: HashSet<String>,
         paths: HashSet<String>,
         home: Option<PathBuf>,
+        /// Everything asked of the machine, in order.
+        ///
+        /// A `Mutex` rather than a `RefCell`: probe tests hand one `MockSys`
+        /// to several threads at once, which needs `Sync`.
+        calls: Mutex<Vec<String>>,
     }
 
     impl MockSys {
@@ -166,6 +203,22 @@ pub mod testing {
             self.home = Some(PathBuf::from(home));
             self
         }
+
+        /// Everything asked of the machine, in order, so a test can assert
+        /// that something happened — or, just as importantly, did not.
+        pub fn calls(&self) -> Vec<String> {
+            self.calls
+                .lock()
+                .expect("no test panics while holding this")
+                .clone()
+        }
+
+        fn record(&self, call: String) {
+            self.calls
+                .lock()
+                .expect("no test panics while holding this")
+                .push(call);
+        }
     }
 
     impl SysCtx for MockSys {
@@ -175,6 +228,7 @@ pub mod testing {
             } else {
                 format!("{cmd} {}", args.join(" "))
             };
+            self.record(key.clone());
             self.cmds.get(&key).cloned()
         }
 
@@ -194,6 +248,11 @@ pub mod testing {
             self.home
                 .clone()
                 .unwrap_or_else(|| PathBuf::from("/Users/test"))
+        }
+
+        fn copy_to_clipboard(&self, text: &str) -> bool {
+            self.record(format!("pbcopy {text}"));
+            true
         }
     }
 }
@@ -236,6 +295,30 @@ mod tests {
         let sys = MockSys::new().with_path("/Applications/LM Studio.app");
         assert!(sys.path_exists("/Applications/LM Studio.app"));
         assert!(!sys.path_exists("/Applications/Nope.app"));
+    }
+
+    /// The recorder Task 14's wizard tests rely on.
+    #[test]
+    fn mock_records_what_was_asked_of_the_machine() {
+        let sys = MockSys::new().with_cmd("brew --version", "Homebrew 6.0.15");
+        sys.run("brew", &["--version"]);
+        sys.run("missing", &[]);
+        sys.copy_to_clipboard("brew install ollama");
+
+        assert_eq!(
+            sys.calls(),
+            ["brew --version", "missing", "pbcopy brew install ollama"]
+        );
+    }
+
+    /// Failed lookups are recorded too: a test proving something was *not*
+    /// asked for needs the record to be complete, not just the successes.
+    #[test]
+    fn mock_records_calls_that_found_nothing() {
+        let sys = MockSys::new();
+        sys.run("nothing-here", &["--version"]);
+
+        assert_eq!(sys.calls(), ["nothing-here --version"]);
     }
 
     #[test]

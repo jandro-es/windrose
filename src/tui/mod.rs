@@ -7,6 +7,7 @@
 //! leave a working prompt behind.
 
 mod app;
+mod doctor_view;
 mod help;
 mod view;
 
@@ -82,7 +83,7 @@ fn event_loop(terminal: &mut Tui) -> Result<(), String> {
             None => continue,
         };
 
-        if update(&mut app, msg) == Action::Quit {
+        if update(&mut app, msg, &crate::sys::RealSys) == Action::Quit {
             return Ok(());
         }
     }

@@ -1,6 +1,7 @@
 //! Drawing. Reads [`App`], writes to a frame, changes nothing.
 
 use super::app::{App, Tab};
+use super::doctor_view;
 use super::help;
 use crate::model::{Availability, Detection};
 use ratatui::Frame;
@@ -113,7 +114,7 @@ fn draw_body(app: &App, frame: &mut Frame, area: Rect) {
         Tab::Local => draw_detections(app, frame, area, block, app.local_detections()),
         Tab::Cloud => draw_detections(app, frame, area, block, app.cloud_detections()),
         Tab::Score => draw_score(app, frame, area, block),
-        Tab::Doctor => draw_doctor(app, frame, area, block),
+        Tab::Doctor => doctor_view::draw(app, frame, area, block),
     }
 }
 
@@ -325,50 +326,6 @@ fn draw_score(app: &App, frame: &mut Frame, area: Rect, block: Block) {
     );
 }
 
-fn draw_doctor(app: &App, frame: &mut Frame, area: Rect, block: Block) {
-    let checks: Vec<_> = app.scan.health.iter().chain(&app.scan.perf).collect();
-
-    let mut lines: Vec<Line> = checks
-        .iter()
-        .enumerate()
-        .map(|(i, check)| {
-            Line::from(format!(
-                "{} {} {}",
-                cursor(i == app.selected),
-                status_marker(check.status),
-                check.title
-            ))
-        })
-        .collect();
-
-    // Setup guidance is opt-in, so this offers rather than shows.
-    match checks.get(app.selected) {
-        Some(check) if check.fix.is_some() && app.doctor.showing_fix => {
-            let fix = check.fix.as_ref().expect("checked just above");
-            lines.push(Line::from(""));
-            for (n, step) in fix.steps.iter().enumerate() {
-                lines.push(Line::from(format!("  {}. {step}", n + 1)));
-            }
-            for command in &fix.commands {
-                lines.push(Line::from(Span::styled(
-                    format!("    {command}"),
-                    Style::default().fg(Color::Cyan),
-                )));
-            }
-        }
-        Some(check) if check.fix.is_some() => {
-            lines.push(Line::from(""));
-            lines.push(Line::from(Span::styled(
-                "Press Enter to see the setup steps for this item.",
-                Style::default().fg(Color::DarkGray),
-            )));
-        }
-        _ => {}
-    }
-
-    frame.render_widget(Paragraph::new(lines).block(block), area);
-}
-
 /// Everything Windrose found about one option, plus what it actually is.
 fn draw_detail_popup(app: &App, frame: &mut Frame, area: Rect) {
     let Some(det) = app.selected_detection() else {
@@ -525,18 +482,10 @@ fn state_words(availability: &Availability) -> String {
     }
 }
 
-fn status_marker(status: crate::doctor::CheckStatus) -> &'static str {
-    use crate::doctor::CheckStatus;
-    match status {
-        CheckStatus::Pass => "✅",
-        CheckStatus::Warn => "⚠️",
-        CheckStatus::Fail => "❌",
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::sys::testing::MockSys;
     use crate::tui::app::{Msg, update};
     use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
     use ratatui::Terminal;
@@ -590,7 +539,7 @@ mod tests {
         let mut app = App::with_fixture();
 
         for n in "12345".chars() {
-            update(&mut app, key(n));
+            update(&mut app, key(n), &MockSys::new());
             assert!(
                 render(&app).contains("q quit"),
                 "help bar missing on {}",
@@ -604,7 +553,7 @@ mod tests {
         let mut app = App::with_fixture();
         assert!(!render(&app).contains("press any key to close"));
 
-        update(&mut app, key('?'));
+        update(&mut app, key('?'), &MockSys::new());
         let screen = render(&app);
         // The way out is in the title, so a long glossary cannot hide it.
         assert!(screen.contains("press any key to close"));
@@ -614,7 +563,7 @@ mod tests {
     #[test]
     fn the_local_tab_lists_options_with_a_cursor() {
         let mut app = App::with_fixture();
-        update(&mut app, key('2'));
+        update(&mut app, key('2'), &MockSys::new());
         let screen = render(&app);
 
         assert!(screen.contains("Ollama"));
@@ -655,7 +604,7 @@ mod tests {
     #[test]
     fn the_local_tab_explains_the_selected_row_in_a_detail_pane() {
         let mut app = App::with_fixture();
-        update(&mut app, key('2'));
+        update(&mut app, key('2'), &MockSys::new());
 
         let screen = render(&app);
         assert!(screen.contains("What is this?"), "no detail pane");
@@ -669,17 +618,17 @@ mod tests {
     #[test]
     fn the_detail_pane_follows_the_selection() {
         let mut app = App::with_fixture();
-        update(&mut app, key('3'));
+        update(&mut app, key('3'), &MockSys::new());
         assert!(render(&app).contains("Claude"));
 
-        update(&mut app, key_code(KeyCode::Down));
+        update(&mut app, key_code(KeyCode::Down), &MockSys::new());
         assert!(render(&app).contains("Groq"));
     }
 
     #[test]
     fn the_local_tab_is_a_table_with_headings() {
         let mut app = App::with_fixture();
-        update(&mut app, key('2'));
+        update(&mut app, key('2'), &MockSys::new());
         let screen = render(&app);
 
         for heading in ["Option", "Version", "Status"] {
@@ -692,7 +641,7 @@ mod tests {
     #[test]
     fn the_score_tab_shows_a_gauge_and_every_tier_with_its_advice() {
         let mut app = App::with_fixture();
-        update(&mut app, key('4'));
+        update(&mut app, key('4'), &MockSys::new());
         let screen = render(&app);
 
         assert!(
@@ -713,7 +662,7 @@ mod tests {
     #[test]
     fn the_score_tab_explains_its_own_jargon() {
         let mut app = App::with_fixture();
-        update(&mut app, key('4'));
+        update(&mut app, key('4'), &MockSys::new());
 
         assert!(render(&app).contains("compressed"));
     }
@@ -721,8 +670,8 @@ mod tests {
     #[test]
     fn enter_opens_a_detail_popup_with_every_row_windrose_found() {
         let mut app = App::with_fixture();
-        update(&mut app, key('2'));
-        update(&mut app, key_code(KeyCode::Enter));
+        update(&mut app, key('2'), &MockSys::new());
+        update(&mut app, key_code(KeyCode::Enter), &MockSys::new());
         let screen = render(&app);
 
         assert!(
@@ -741,7 +690,7 @@ mod tests {
     #[test]
     fn the_help_overlay_carries_the_glossary() {
         let mut app = App::with_fixture();
-        update(&mut app, key('?'));
+        update(&mut app, key('?'), &MockSys::new());
         let screen = render(&app);
 
         for term in ["model", "token", "API key"] {
@@ -771,7 +720,7 @@ mod tests {
     #[test]
     fn the_doctor_tab_offers_steps_before_showing_them() {
         let mut app = App::with_fixture();
-        update(&mut app, key('5'));
+        update(&mut app, key('5'), &MockSys::new());
 
         // Every guide opens by saying how to reach a Terminal, so its absence
         // is a reliable sign that no steps are on screen — unlike a specific
@@ -786,6 +735,7 @@ mod tests {
         update(
             &mut app,
             Msg::Key(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE)),
+            &MockSys::new(),
         );
         let shown = render(&app);
         assert!(shown.contains("Open Terminal"), "steps should now be shown");

@@ -182,8 +182,6 @@ pub fn health_checks(
 ///
 /// Takes `sys` for the same reason as [`health_checks`] — the free-space check
 /// the plan asks for reads the disk.
-// Consumed by `gather()` in Task 11; remove this allow when that lands.
-#[allow(dead_code)]
 pub fn performance_checks(
     dets: &[Detection],
     hw: &HardwareProfile,
