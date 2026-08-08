@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The licence names Filtercode LTD as the copyright holder. The 0.1.0 tarballs
+  carry an incorrect name; published releases cannot be changed, so this
+  supersedes them.
+
 ## [0.1.0] - 2026-08-08
 
 ### Added
