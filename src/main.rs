@@ -5,6 +5,8 @@
 
 mod cli;
 mod hardware;
+mod model;
+mod probes;
 mod sys;
 
 use clap::Parser;

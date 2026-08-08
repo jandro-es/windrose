@@ -257,7 +257,7 @@ Also test an Intel Mac (`brand_string` = "Intel(R) Core(TM) i7…" ⇒ `ChipTier
 
 **Interfaces:** Produces `Detection`, `Availability`, `Category`, `trait Probe`, `registry()`, `run_all()` exactly as in *Core interfaces*. `run_all` runs every probe in a `std::thread::scope`, collects in registry order (stable output for tests and reports).
 
-- [ ] **Step 1: Failing test** with two fake probes asserting `run_all` preserves order and runs both. **Step 2: FAIL → implement.** **Step 3: Commit** `feat: probe trait and parallel registry`.
+- [x] **Step 1: Failing test** with two fake probes asserting `run_all` preserves order and runs both. **Step 2: FAIL → implement.** **Step 3: Commit** `feat: probe trait and parallel registry`.
 
 ---
 
