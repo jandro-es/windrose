@@ -146,8 +146,8 @@ pub fn performance_checks(dets: &[Detection], hw: &HardwareProfile) -> Vec<Check
 
 **Interfaces:** Produces the `Cli` clap struct with subcommands `scan | score | doctor | report | tui` (no subcommand ⇒ `tui`), global `--no-color` and `--json` flags.
 
-- [ ] **Step 1: `cargo init windrose`, pin toolchain, add dependencies** (versions from Global Constraints; `clap_mangen` under `[build-dependencies]` is NOT needed — man generation is a runtime `xtask`-style hidden subcommand, see Task 15).
-- [ ] **Step 2: Write failing CLI test** in `src/cli.rs`:
+- [x] **Step 1: `cargo init windrose`, pin toolchain, add dependencies** (versions from Global Constraints; `clap_mangen` under `[build-dependencies]` is NOT needed — man generation is a runtime `xtask`-style hidden subcommand, see Task 15).
+- [x] **Step 2: Write failing CLI test** in `src/cli.rs`:
 
 ```rust
 #[cfg(test)]
@@ -164,8 +164,8 @@ mod tests {
 }
 ```
 
-- [ ] **Step 3: Run `cargo test` — expect FAIL (Cli undefined).**
-- [ ] **Step 4: Implement `Cli`:**
+- [x] **Step 3: Run `cargo test` — expect FAIL (Cli undefined).**
+- [x] **Step 4: Implement `Cli`:**
 
 ```rust
 use clap::{Parser, Subcommand};
@@ -192,8 +192,8 @@ pub enum Command {
 }
 ```
 
-- [ ] **Step 5: `cargo test` passes; `main.rs` matches on command and prints `todo` stubs.**
-- [ ] **Step 6: Add `ci.yml`** (macos-14: `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test`). **Commit** `feat: scaffold windrose CLI skeleton`.
+- [x] **Step 5: `cargo test` passes; `main.rs` matches on command and prints `todo` stubs.**
+- [x] **Step 6: Add `ci.yml`** (macos-14: `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test`). **Commit** `feat: scaffold windrose CLI skeleton`.
 
 ---
 
