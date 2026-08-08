@@ -316,7 +316,7 @@ fn ollama_absent() { /* nothing programmed ⇒ NotFound */ }
 
 **Interfaces:** id `"apple-fm"`, category `ApplePlatform`. Consumes `HardwareProfile` indirectly via its own version check.
 
-- [ ] **Step 1: Failing tests:**
+- [x] **Step 1: Failing tests:**
 
 ```rust
 #[test]
@@ -335,8 +335,15 @@ fn macos25_reports_not_found_with_upgrade_hint() { /* version 15.x ⇒ NotFound,
 fn intel_mac_reports_partial() { /* macOS 26 + Intel ⇒ Partial("Requires Apple Silicon") */ }
 ```
 
-- [ ] **Step 2: FAIL → implement:** availability matrix — macOS ≥ 26 + Apple Silicon + framework path ⇒ Ready; details rows: "Generation" ("macOS 26 on-device model (~3B, 4k context)" vs "macOS 27 updated model"), "Apple Intelligence" (check `defaults read com.apple.CloudSubscriptionFeatures.optIn` best-effort; if unreadable report "Unknown — check System Settings ▸ Apple Intelligence & Siri"). Never fail the probe on the defaults read.
-- [ ] **Step 3: Pass, register. Commit** `feat: apple foundation models probe`.
+- [x] **Step 2: FAIL → implement:** availability matrix — macOS ≥ 26 + Apple Silicon + framework path ⇒ Ready; details rows: "Generation" ("macOS 26 on-device model (~3B, 4k context)" vs "macOS 27 updated model"), "Apple Intelligence" (check `defaults read com.apple.CloudSubscriptionFeatures.optIn` best-effort; if unreadable report "Unknown — check System Settings ▸ Apple Intelligence & Siri").
+  **Correction, verified on hardware:** that domain is not a boolean — it prints an undocumented
+  dictionary keyed by an opaque account id, e.g. `{ 1301870110 = 1; }`. Only a `1` in it is treated
+  as "Turned on"; every other shape (missing, empty, unrecognised) reports Unknown rather than
+  "off", so the probe never sends someone to fix a setting that is already correct.
+  **Deviation:** the upgrade hint lives in a `How to get it` detail row, not in `friendly`.
+  `friendly` is documented as a constant one-line explanation of *what a thing is*; making it
+  vary with macOS version would break that contract and every renderer that treats it as a subtitle. Never fail the probe on the defaults read.
+- [x] **Step 3: Pass, register. Commit** `feat: apple foundation models probe`.
 
 ---
 

@@ -9,6 +9,7 @@
 //! the three-state tests first (ready / half-configured / absent), then add it
 //! to [`registry`].
 
+mod apple;
 mod llamacpp;
 mod lmstudio;
 mod mlx;
@@ -42,6 +43,7 @@ pub fn registry() -> Vec<Box<dyn Probe>> {
         Box::new(lmstudio::LmStudioProbe),
         Box::new(llamacpp::LlamaCppProbe),
         Box::new(mlx::MlxProbe),
+        Box::new(apple::AppleFmProbe),
     ]
 }
 
