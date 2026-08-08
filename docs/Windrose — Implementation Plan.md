@@ -225,7 +225,7 @@ fn mock_returns_programmed_cmd_output() {
 
 **Interfaces:** Produces `HardwareProfile { chip_name: String, chip_tier: ChipTier, ram_gb: u32, gpu_cores: Option<u32>, macos_major: u32, is_apple_silicon: bool, is_laptop: bool }` and `pub fn profile(sys: &dyn SysCtx) -> HardwareProfile`. `ChipTier` = `Base | Pro | Max | Ultra | Intel` parsed from the chip string.
 
-- [ ] **Step 1: Failing tests** — feed `MockSys` canned outputs:
+- [x] **Step 1: Failing tests** — feed `MockSys` canned outputs:
 
 ```rust
 #[test]
@@ -244,8 +244,10 @@ fn parses_m4_pro_mac() {
 ```
 
 Also test an Intel Mac (`brand_string` = "Intel(R) Core(TM) i7…" ⇒ `ChipTier::Intel`, `gpu_cores: None`).
-- [ ] **Step 2: FAIL → implement** (parse `sysctl`, `sw_vers`, `system_profiler -json`; `is_laptop` from `sysctl -n hw.model` containing "Book"). Round RAM to nearest GB.
-- [ ] **Step 3: Pass. Commit** `feat: hardware profiler`.
+- [x] **Step 2: FAIL → implement** (parse `sysctl`, `sw_vers`, `system_profiler -json`; `is_laptop` from battery presence — see correction below). Round RAM to nearest GB.
+
+  > **Correction (found during execution):** the original plan detected laptops via `sysctl -n hw.model` containing "Book". This is wrong on current hardware — Apple moved to generic model identifiers, so an M5 Pro MacBook Pro reports `Mac17,9` with no "Book" in it, and every modern MacBook would score as a desktop. Implemented instead as `pmset -g batt` containing `InternalBattery`, with the model-string check retained only as a fallback for older Macs and for when `pmset` is unreadable. This matters because `is_laptop` drives the −10 thermal-sustain penalty in Task 9 scoring and the laptop thermal note in Task 10.
+- [x] **Step 3: Pass. Commit** `feat: hardware profiler`.
 
 ---
 

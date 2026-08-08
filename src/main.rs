@@ -4,6 +4,7 @@
 //! UI-agnostic core modules; formatting for humans lives in `report` and `tui`.
 
 mod cli;
+mod hardware;
 mod sys;
 
 use clap::Parser;
