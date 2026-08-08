@@ -496,7 +496,7 @@ fn low_ram_perf_check_recommends_smaller_quant() {
 
 **Interfaces:** Produces `App { scan: ScanResult, tab: Tab, selected: usize, show_help: bool, doctor: DoctorState }`, `enum Msg { Key(KeyEvent), Tick }`, `fn update(app: &mut App, msg: Msg) -> Action` (`Action::{Continue, Quit}`), `fn view(app: &App, f: &mut Frame)`. Tabs: `Overview | Local | Cloud | Score | Doctor`. Consumes `gather()` from Task 11.
 
-- [ ] **Step 1: Failing update-logic tests (no terminal needed):**
+- [x] **Step 1: Failing update-logic tests (no terminal needed):**
 
 ```rust
 #[test]
@@ -510,9 +510,9 @@ fn tab_and_quit_keys() {
 fn help_overlay_toggles_on_question_mark() { /* '?' toggles show_help */ }
 ```
 
-- [ ] **Step 2: Failing render test with `ratatui::backend::TestBackend`:** buffer contains the app title, all five tab names, and the persistent bottom help bar `" ↑↓ move · Tab switch · ? help · q quit "` (the always-visible guidance the spec requires).
-- [ ] **Step 3: FAIL → implement:** `mod.rs` does raw-mode + alternate-screen setup with a scopeguard-style restore (also install a panic hook that restores the terminal first — never leave the user's terminal broken); loop polls crossterm events at 100 ms; `view.rs` renders tab bar, per-tab body placeholder, help bar. Show a "Scanning your Mac… (a few seconds)" splash while `gather()` runs on a background thread before the first frame.
-- [ ] **Step 4: Pass. Commit** `feat: ratatui shell with elm loop`.
+- [x] **Step 2: Failing render test with `ratatui::backend::TestBackend`:** buffer contains the app title, all five tab names, and the persistent bottom help bar `" ↑↓ move · Tab switch · ? help · q quit "` (the always-visible guidance the spec requires).
+- [x] **Step 3: FAIL → implement:** `mod.rs` does raw-mode + alternate-screen setup with a scopeguard-style restore (also install a panic hook that restores the terminal first — never leave the user's terminal broken); loop polls crossterm events at 100 ms; `view.rs` renders tab bar, per-tab body placeholder, help bar. Show a "Scanning your Mac… (a few seconds)" splash while `gather()` runs on a background thread before the first frame.
+- [x] **Step 4: Pass. Commit** `feat: ratatui shell with elm loop`.
 
 ---
 

@@ -11,6 +11,7 @@ mod probes;
 mod report;
 mod scoring;
 mod sys;
+mod tui;
 
 use clap::Parser;
 use cli::{Cli, Command};
@@ -22,7 +23,12 @@ fn main() {
     let command = cli.command.unwrap_or(Command::Tui);
 
     match command {
-        Command::Tui => todo!("tui: implemented in Task 12"),
+        Command::Tui => {
+            if let Err(message) = tui::run() {
+                eprintln!("{message}");
+                std::process::exit(2);
+            }
+        }
         Command::GenMan { out_dir } => {
             todo!("gen-man into {}: implemented in Task 15", out_dir.display())
         }
