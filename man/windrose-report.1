@@ -1,0 +1,16 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH windrose-report 1  "windrose-report " 
+.SH NAME
+windrose\-report \- Write a full report (markdown or JSON) to a file or stdout
+.SH SYNOPSIS
+\fBwindrose\-report\fR [\fB\-\-format\fR] [\fB\-h\fR|\fB\-\-help\fR] 
+.SH DESCRIPTION
+Write a full report (markdown or JSON) to a file or stdout
+.SH OPTIONS
+.TP
+\fB\-\-format\fR \fI<FORMAT>\fR [default: md]
+Output format: "md" for a readable document, "json" for data
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help

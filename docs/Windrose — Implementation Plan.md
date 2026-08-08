@@ -550,10 +550,10 @@ fn help_overlay_toggles_on_question_mark() { /* '?' toggles show_help */ }
 
 **Interfaces:** Consumes `Cli::command()`. Produces `man/windrose.1` plus `man/windrose-<sub>.1` for scan/score/doctor/report.
 
-- [ ] **Step 1: Failing test:** `gen_man(tempdir)` writes `windrose.1` whose contents contain `.TH` and every subcommand name.
-- [ ] **Step 2: FAIL → implement** with `clap_mangen::Man` for the root and each subcommand; enrich the root page via clap `long_about` + `after_long_help` (EXAMPLES section: `windrose`, `windrose scan --json`, `windrose doctor`).
-- [ ] **Step 3: `scripts/generate-man.sh`:** `cargo run --quiet -- gen-man man/` + `git diff --exit-code man/ || echo "man pages updated — commit them"`. Header comment documents purpose/usage. CI gets a step running it to guarantee committed pages are current.
-- [ ] **Step 4: Verify `man ./man/windrose.1` renders. Commit** `feat: generated man pages`.
+- [x] **Step 1: Failing test:** `gen_man(tempdir)` writes `windrose.1` whose contents contain `.TH` and every subcommand name.
+- [x] **Step 2: FAIL → implement** with `clap_mangen::Man` for the root and each subcommand; enrich the root page via clap `long_about` + `after_long_help` (EXAMPLES section: `windrose`, `windrose scan --json`, `windrose doctor`).
+- [x] **Step 3: `scripts/generate-man.sh`:** `cargo run --quiet -- gen-man man/` + `git diff --exit-code man/ || echo "man pages updated — commit them"`. Header comment documents purpose/usage. CI gets a step running it to guarantee committed pages are current.
+- [x] **Step 4: Verify `man ./man/windrose.1` renders. Commit** `feat: generated man pages`.
 
 ---
 

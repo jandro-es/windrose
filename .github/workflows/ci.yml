@@ -37,3 +37,6 @@ jobs:
 
       - name: Test
         run: cargo test
+
+      - name: Man pages are current
+        run: ./scripts/generate-man.sh --check

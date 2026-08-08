@@ -30,7 +30,10 @@ fn main() {
             }
         }
         Command::GenMan { out_dir } => {
-            todo!("gen-man into {}: implemented in Task 15", out_dir.display())
+            if let Err(message) = cli::gen_man(&out_dir) {
+                eprintln!("{message}");
+                std::process::exit(2);
+            }
         }
         command => {
             if let Err(message) = cli::run(command, cli.json) {

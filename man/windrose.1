@@ -1,0 +1,56 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH windrose 1  "windrose 0.1.0" 
+.SH NAME
+windrose \- Discover and assess every AI option on your Mac
+.SH SYNOPSIS
+\fBwindrose\fR [\fB\-\-json\fR] [\fB\-\-no\-color\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fIsubcommands\fR]
+.SH DESCRIPTION
+Windrose looks at your Mac and tells you which AI tools you already have, which ones are ready to use, and how well this machine can run AI models on its own — without sending anything to the internet.
+.PP
+Run it with no arguments to open the interactive dashboard.
+.SH OPTIONS
+.TP
+\fB\-\-json\fR
+Print machine\-readable JSON instead of friendly text
+.TP
+\fB\-\-no\-color\fR
+Turn off coloured output (useful when saving output to a file)
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.SH SUBCOMMANDS
+.TP
+windrose\-scan(1)
+Scan this Mac and list every AI option found
+.TP
+windrose\-score(1)
+Score how well this Mac can run AI models on\-device
+.TP
+windrose\-doctor(1)
+Check health, guide setup, and suggest performance fixes
+.TP
+windrose\-report(1)
+Write a full report (markdown or JSON) to a file or stdout
+.TP
+windrose\-tui(1)
+Open the interactive dashboard (default)
+.TP
+windrose\-help(1)
+Print this message or the help of the given subcommand(s)
+.SH EXTRA
+EXAMPLES:
+  windrose                  Open the interactive dashboard
+  windrose scan             List every AI option found on this Mac
+  windrose scan \-\-json      The same information as data, for scripts
+  windrose score            How well this Mac runs models on its own
+  windrose doctor           What is worth fixing, and how to fix it
+  windrose report \-\-format md > report.md
+                            Save a full report to share
+
+Windrose never installs or changes anything. It shows you what to run and leaves the decision to you.
+.SH VERSION
+v0.1.0
