@@ -591,8 +591,8 @@ fn help_overlay_toggles_on_question_mark() { /* '?' toggles show_help */ }
   `scripts/update-formula.sh`, which adds `man1.install "windrose.1"`. Verified by installing it from
   a throwaway local tap: `man windrose` renders and the page is symlinked into `share/man/man1/`.
   Side benefit — nothing in CI writes to the tap, so no `HOMEBREW_TAP_TOKEN` is needed at all.
-- [ ] **Step 3 (BLOCKED — needs GitHub account access):** Create the `homebrew-tap` repo (with a `Formula/` directory and a README). **The PAT is no longer needed** — the formula is published by hand, so nothing in CI writes to the tap.
-- [ ] **Step 4 (BLOCKED — needs a remote + a published release):** Push a `v0.1.0` pre-release tag on a test run; verify: GH Release has artifacts; `brew install jandro-es/tap/windrose` works; `man windrose` works post-install; curl installer works. **Commit** `chore: cargo-dist release pipeline`.
+- [x] **Step 3:** Create the `homebrew-tap` repo (with a `Formula/` directory and a README). **The PAT is no longer needed** — the formula is published by hand, so nothing in CI writes to the tap.
+- [x] **Step 4:** Released v0.1.0. Verified all four: the GitHub Release carries both architectures; `brew install jandro-es/tap/windrose` works; `man windrose` works post-install (the hand-maintained formula's whole purpose); the curl installer works. **Commit** `chore: cargo-dist release pipeline`.
 
 ---
 
