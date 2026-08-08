@@ -13,9 +13,13 @@ cargo-dist-version = "0.32.0"
 ci = "github"
 # The installers to generate for each app.
 #
-# "shell" is the curl-pipe installer for people who do not use Homebrew;
-# "homebrew" publishes a formula to the tap below.
-installers = ["shell", "homebrew"]
+# "shell" is the curl-pipe installer. Homebrew is deliberately NOT here: dist's
+# generated formula does not install man pages (it does `bin.install` and drops
+# everything else into pkgshare), so `man windrose` would not work. The formula
+# is maintained by hand instead — see packaging/homebrew/ and
+# scripts/update-formula.sh. Re-enabling this would overwrite that formula on
+# every release.
+installers = ["shell"]
 # Target platforms to build apps for (Rust target-triple syntax).
 #
 # Windrose reads macOS-specific things — sysctl, sw_vers, pmset, /Applications
@@ -24,11 +28,6 @@ installers = ["shell", "homebrew"]
 targets = ["aarch64-apple-darwin", "x86_64-apple-darwin"]
 # Which actions to run on pull requests
 pr-run-mode = "plan"
-# Publish jobs to run in CI
-publish-jobs = ["homebrew"]
-# A GitHub repo to push Homebrew formulas to. Users install from it as
-# `jandro/tap`; GitHub requires the `homebrew-` prefix on the repo name.
-tap = "jandro/homebrew-tap"
 # Extra files to include in each tarball.
 #
 # man/windrose.1 is what makes `man windrose` work after installing — the

@@ -132,9 +132,9 @@ Signing in to the app is usually enough — most services do not need a key at
 all.
 
 **`man windrose` says "No manual entry".**
-If you installed with Homebrew, see the known gap in
-[docs/RELEASING.md](docs/RELEASING.md). `windrose --help` covers the same
-ground.
+The Homebrew formula installs the manual page, so this should not happen. If it
+does, `windrose --help` covers the same ground, and the page is in the release
+tarball if you want to install it yourself.
 
 **The dashboard looks wrong, or my terminal is broken after a crash.**
 Windrose restores the terminal on exit, on error, and on panic. If something

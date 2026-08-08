@@ -21,7 +21,8 @@ Use `--dry-run` to do all of that except the push.
    cargo-dist**. Do not hand-edit it — run `dist generate` instead.
 3. cargo-dist builds a binary for each target, packages the tarballs, and
    creates the GitHub Release.
-4. The `homebrew` publish job pushes an updated formula to the tap repository.
+4. You publish the Homebrew formula — one command, see below. This step is
+   manual on purpose.
 
 ## One-time setup
 
@@ -46,15 +47,13 @@ Answer `dist init` with:
 | Question    | Answer                                          |
 |-------------|-------------------------------------------------|
 | Targets     | `aarch64-apple-darwin`, `x86_64-apple-darwin`   |
-| Installers  | `shell` and `homebrew`                          |
-| Homebrew tap| `jandro/homebrew-tap`                           |
+| Installers  | `shell` only — **not** homebrew, see below      |
 | CI backend  | `github`                                        |
 
 Then check `dist-workspace.toml` contains:
 
 ```toml
-publish-jobs = ["homebrew"]
-tap = "jandro/homebrew-tap"
+installers = ["shell"]
 include = ["man/windrose.1"]
 ```
 
@@ -65,70 +64,56 @@ them again ships two copies of each. `dist plan` shows the duplicates.
 Commit both files. `dist-workspace.toml` is meant to be edited by hand;
 `release.yml` is not.
 
-### Known gap: `man windrose` after `brew install`
+### Why the formula is maintained by hand
 
-**cargo-dist 0.32 does not install man pages.** Verified by generating the
-formula and reading it: the install block is
+cargo-dist's generated formula does `bin.install "windrose"` and then dumps
+everything else into `pkgshare`, so `windrose.1` lands in `share/windrose/`
+rather than `share/man/man1/` and `man windrose` does not work.
+
+So Homebrew is **not** in `installers` and there is no `publish-jobs` entry.
+`packaging/homebrew/windrose.rb.template` holds the formula instead, and it does
+the one extra line that matters:
 
 ```ruby
-bin.install "windrose"
-...
-pkgshare.install(*leftover_contents)
+def install
+  bin.install "windrose"
+  man1.install "windrose.1"
+end
 ```
 
-so `windrose.1` lands in `share/windrose/` rather than `share/man/man1/`, where
-`man` looks. The shell installer does not handle man pages either. The page
-*is* in the tarball, so nothing is lost — it just is not on the manual path.
+Its `test` block asserts the man page exists, so the gap cannot quietly reopen.
 
-Until this is resolved, one of:
+The cost is one command per release (below). The benefit, beyond working manual
+pages, is that **no cross-repository token is needed in CI** — nothing in the
+release workflow writes to the tap, so there is no `HOMEBREW_TAP_TOKEN` and no
+secret to rotate or leak.
 
-- Accept it. `windrose --help` is thorough, and the tarball carries the page for
-  anyone who wants it:
-  `sudo install -m644 windrose.1 "$(brew --prefix)/share/man/man1/"`
-- Maintain the formula by hand in the tap, adding `man1.install "windrose.1"`.
-  This costs the automatic formula update on every release.
-- Track cargo-dist upstream for man-page support and re-check on each bump.
+### Publishing the formula, once per release
 
-Re-test this after every cargo-dist upgrade — see the verification list below.
+After the GitHub Release has finished building:
+
+```bash
+./scripts/update-formula.sh v1.2.3     # downloads the artifacts, computes checksums
+brew style packaging/homebrew/windrose.rb
+```
+
+Then copy `packaging/homebrew/windrose.rb` into the tap repository as
+`Formula/windrose.rb`, commit, and push. The rendered file is deliberately not
+committed here — the tap is where published formulae live.
+
+Checksums are computed, never typed: a wrong one fails every install with an
+error that looks like a corrupted download.
+
+To try a formula before publishing anything, `--local` renders it from the
+tarballs `dist build --artifacts=local` leaves in `target/distrib`.
 
 ### 3. Create the tap repository
 
-Create `jandro/homebrew-tap` on GitHub — public, empty except for a README
-saying what it is. Homebrew requires the `homebrew-` name prefix; users then
-refer to it as `jandro/tap`.
+Create `jandro/homebrew-tap` on GitHub — public, with a `Formula/` directory and
+a README saying what it is. Homebrew requires the `homebrew-` name prefix; users
+then refer to it as `jandro/tap`.
 
-### 4. Create the tap token
-
-The release workflow needs to push a formula into a *different* repository, so
-the default `GITHUB_TOKEN` is not enough.
-
-1. GitHub → Settings → Developer settings → **Fine-grained personal access
-   tokens** → Generate new token.
-2. Repository access: **only** `jandro/homebrew-tap`.
-3. Permissions: **Contents: Read and write**. Nothing else.
-4. Set an expiry you will actually notice, and put a reminder in your calendar —
-   an expired token fails the release, not the build.
-5. In `jandro/windrose` → Settings → Secrets and variables → Actions, add it as
-   `HOMEBREW_TAP_TOKEN`.
-
-Scope it to the tap repository alone. A token that can also write to the main
-repository is a much larger problem if it leaks, and it buys nothing.
-
-## Rotating the tap token
-
-The token is fine-grained and expires. When it does, releases fail at the
-`homebrew` publish job *after* the GitHub Release has already been created —
-the binaries ship, the formula does not.
-
-1. Mint a replacement with the same scope: `jandro/homebrew-tap` only,
-   **Contents: Read and write**, nothing else.
-2. Replace the `HOMEBREW_TAP_TOKEN` secret in `jandro/windrose`.
-3. Delete the old token so a leaked copy is worthless.
-4. Re-run the failed `homebrew` job from the Actions tab. There is no need to
-   cut a new version — the release artifacts are already published.
-
-Rotate it deliberately rather than waiting for the failure, and set the calendar
-reminder a week before the expiry.
+Nothing but you writes to this repository, so it needs no tokens or secrets.
 
 ## Verifying a release
 
@@ -150,15 +135,9 @@ curl --proto '=https' --tlsv1.2 -LsSf \
   https://github.com/jandro/windrose/releases/latest/download/windrose-installer.sh | sh
 ```
 
-`man windrose` is expected to **fail** today — see the known gap above. Check
-that the page is at least present in the installed tree:
-
-```bash
-ls "$(brew --prefix)/share/windrose/windrose.1"
-```
-
-If a future cargo-dist installs it properly, `man windrose` starts working and
-the known-gap section can go.
+All four should pass. If `man windrose` fails, check that the formula in the tap
+still has `man1.install "windrose.1"` — that line is the whole reason the
+formula is maintained by hand.
 
 ## Undoing a release
 
