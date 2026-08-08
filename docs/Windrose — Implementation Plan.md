@@ -203,7 +203,7 @@ pub enum Command {
 
 **Interfaces:** Produces `trait SysCtx` (exact shape above), `RealSys` (production impl), and test helper `MockSys` with builder methods `with_cmd(cmd_line, stdout)`, `with_http(url, body)`, `with_env(var)`, `with_path(path)`.
 
-- [ ] **Step 1: Failing test:**
+- [x] **Step 1: Failing test:**
 
 ```rust
 #[test]
@@ -214,8 +214,8 @@ fn mock_returns_programmed_cmd_output() {
 }
 ```
 
-- [ ] **Step 2: Run — FAIL.** **Step 3: Implement** `RealSys` (`std::process::Command` with 5s kill-timeout via `wait_timeout` pattern — spawn + poll loop; `ureq::get(url).timeout(Duration::from_millis(t)).call()`; `std::env::var(var).is_ok()` — read only `is_ok`, drop the value immediately) and `MockSys` (HashMaps keyed by joined command line / url / var / path; `#[cfg(test)]`-gated but exported via `pub mod testing` so probe tests can use it).
-- [ ] **Step 4: Test passes. Commit** `feat: add SysCtx OS boundary with mock`.
+- [x] **Step 2: Run — FAIL.** **Step 3: Implement** `RealSys` (`std::process::Command` with 5s kill-timeout via `wait_timeout` pattern — spawn + poll loop; `ureq::get(url).timeout(Duration::from_millis(t)).call()`; `std::env::var(var).is_ok()` — read only `is_ok`, drop the value immediately) and `MockSys` (HashMaps keyed by joined command line / url / var / path; `#[cfg(test)]`-gated but exported via `pub mod testing` so probe tests can use it).
+- [x] **Step 4: Test passes. Commit** `feat: add SysCtx OS boundary with mock`.
 
 ---
 
