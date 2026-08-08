@@ -297,12 +297,16 @@ fn ollama_absent() { /* nothing programmed ⇒ NotFound */ }
 
 **Interfaces:** ids `"lmstudio"` (LocalRuntime), `"llamacpp"` (OptimisedRuntime), `"mlx"` (OptimisedRuntime).
 
-- [ ] **Step 1: Failing tests per probe (same three-state pattern as Task 5), keyed on:**
-  - **LM Studio:** app bundle `path_exists("/Applications/LM Studio.app")`; CLI `lms version`; local server `GET http://localhost:1234/v1/models`; downloaded models dir `~/.lmstudio/models` (fall back to `~/.cache/lm-studio/models`).
+- [x] **Step 1: Failing tests per probe (same three-state pattern as Task 5), keyed on:**
+  - **LM Studio:** app bundle `path_exists("/Applications/LM Studio.app")`; CLI `lms version`
+    (**correction, verified on hardware:** `lms version` prints an ASCII-art banner and
+    `CLI commit: <sha>` — there is no version number in it. Treat it as a presence signal only
+    and read the version from `defaults read "/Applications/LM Studio.app/Contents/Info.plist"
+    CFBundleShortVersionString` → e.g. `0.4.20+1`); local server `GET http://localhost:1234/v1/models`; downloaded models dir `~/.lmstudio/models` (fall back to `~/.cache/lm-studio/models`).
   - **llama.cpp:** `llama-server --version` or `llama-cli --version`; Homebrew formula via `brew list llama.cpp --versions`; detail row "Metal acceleration: yes" when on Apple Silicon.
   - **MLX:** `python3 -c "import mlx.core; print(mlx.core.__version__)"`; `mlx_lm.generate --help` presence for the LM toolkit; report `Partial("Python stack present, mlx-lm missing")` when core imports but toolkit absent.
-- [ ] **Step 2: FAIL → implement.** Friendly lines: LM Studio "a point-and-click app for downloading and chatting with local AI models"; llama.cpp "a fast engine that runs AI models straight on your Mac's chip"; MLX "Apple's own toolkit that makes AI models run fastest on Apple Silicon".
-- [ ] **Step 3: Pass, register. Commit** `feat: lmstudio, llama.cpp and mlx probes`.
+- [x] **Step 2: FAIL → implement.** Friendly lines: LM Studio "a point-and-click app for downloading and chatting with local AI models"; llama.cpp "a fast engine that runs AI models straight on your Mac's chip"; MLX "Apple's own toolkit that makes AI models run fastest on Apple Silicon".
+- [x] **Step 3: Pass, register. Commit** `feat: lmstudio, llama.cpp and mlx probes`.
 
 ---
 

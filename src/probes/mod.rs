@@ -9,6 +9,9 @@
 //! the three-state tests first (ready / half-configured / absent), then add it
 //! to [`registry`].
 
+mod llamacpp;
+mod lmstudio;
+mod mlx;
 mod ollama;
 
 use crate::model::Detection;
@@ -28,9 +31,18 @@ pub trait Probe: Sync {
 }
 
 /// Every probe Windrose knows about, in the order results are presented.
-// Further probes are registered here as Tasks 6-8 add them.
+///
+/// Order is grouped by category — the things most people already have first,
+/// then the speed-focused engines — because reports render this list top to
+/// bottom without regrouping.
+// Further probes are registered here as Tasks 7-8 add them.
 pub fn registry() -> Vec<Box<dyn Probe>> {
-    vec![Box::new(ollama::OllamaProbe)]
+    vec![
+        Box::new(ollama::OllamaProbe),
+        Box::new(lmstudio::LmStudioProbe),
+        Box::new(llamacpp::LlamaCppProbe),
+        Box::new(mlx::MlxProbe),
+    ]
 }
 
 /// Run every registered probe against this machine.
