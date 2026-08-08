@@ -7,6 +7,7 @@ mod cli;
 mod hardware;
 mod model;
 mod probes;
+mod scoring;
 mod sys;
 
 use clap::Parser;

@@ -399,7 +399,7 @@ The `Config paths` column above already collected this signal; it just was not u
 
 **Interfaces:** Produces `score(hw: &HardwareProfile) -> DeviceScore` (types in *Core interfaces*).
 
-- [ ] **Step 1: Failing tests:**
+- [x] **Step 1: Failing tests:**
 
 ```rust
 #[test]
@@ -418,12 +418,19 @@ fn intel_8gb_scores_low_with_cloud_advice() {
 }
 ```
 
-- [ ] **Step 2: FAIL → implement the formula (document identically in docs/SCORING.md):**
-  - **memory (0–100):** usable model RAM = `ram_gb * 0.65`; scored against the 4-bit footprint table: 3B≈2 GB, 7–9B≈5 GB, 13–14B≈9 GB, 30–32B≈19 GB, 70B≈40 GB. Score = capped linear scale where 8 GB→30, 16→55, 32→75, 48→85, 64+→95.
+- [x] **Step 2: FAIL → implement the formula (document identically in docs/SCORING.md):**
+  - **memory (0–100):** usable model RAM = `ram_gb * 0.65`; scored against the 4-bit footprint table: 3B≈2 GB, 7–9B≈5 GB, 13–14B≈9 GB, 30–32B≈19 GB, 70B≈40 GB.
+    **Correction — these numbers contradict this task's own tests, verified by running them.** They are
+    bare weight sizes; the fit thresholds need *working-set* sizes (weights + conversation + runtime).
+    With the literal table, `m4_pro_48gb_scores_high_and_fits_32b` gets `Great` where it asserts `Ok`
+    (48 GB × 0.65 ÷ 19 = 1.64, over the ×1.5 Great threshold), and `intel_8gb_scores_low_with_cloud_advice`
+    fits the 7B class as `Tight` where it asserts nothing but 3B fits (8 × 0.65 ÷ 5 = 1.04, over ×1.0).
+    Implemented footprints are 2.5 / 6 / 10 / 22 / 42 GB, which satisfy both tests and match reality:
+    a model whose *file* just fits in memory does not actually run. Score = capped linear scale where 8 GB→30, 16→55, 32→75, 48→85, 64+→95.
   - **compute (0–100):** chip tier base (Intel 10, Base 55, Pro 70, Max 85, Ultra 95) + up to +5 for gpu_cores ≥ 30.
   - **overall:** `min(memory, compute) * 0.6 + max * 0.4` (bottleneck-weighted), −10 if `is_laptop` on Max/Ultra (thermal sustain), floor 5.
   - **tiers:** for each of the five size classes emit `Fit` (Great/Ok/Tight/No from RAM headroom ×1.5/×1.2/×1.0) and `est_tok_s` ranges per tier from a static table (e.g. Base+7B ⇒ (15, 30); Pro+7B ⇒ (30, 55); document sources as "community llama.cpp/MLX benchmarks, indicative only"). Every tier gets a plain-English `advice` sentence ("Runs comfortably — a good everyday choice" / "Won't fit in memory — use a cloud provider for this size").
-- [ ] **Step 3: Pass. Commit** `feat: on-device scoring engine`.
+- [x] **Step 3: Pass. Commit** `feat: on-device scoring engine`.
 
 ---
 
