@@ -267,7 +267,7 @@ Also test an Intel Mac (`brand_string` = "Intel(R) Core(TM) i7…" ⇒ `ChipTier
 
 **Interfaces:** Consumes `SysCtx`, `Detection`. Registered id `"ollama"`, category `LocalRuntime`.
 
-- [ ] **Step 1: Failing tests — the three states:**
+- [x] **Step 1: Failing tests — the three states:**
 
 ```rust
 #[test]
@@ -286,8 +286,8 @@ fn ollama_installed_but_stopped() { /* version ok, no http ⇒ InstalledNotRunni
 fn ollama_absent() { /* nothing programmed ⇒ NotFound */ }
 ```
 
-- [ ] **Step 2: FAIL → implement:** binary check via `ollama --version` (parse semver), daemon via `GET /api/tags` (800 ms timeout), model names joined into details, `friendly: "Ollama — a free app that runs AI models privately on your Mac".to_string()`.
-- [ ] **Step 3: Pass, register in `registry()`. Commit** `feat: ollama probe`.
+- [x] **Step 2: FAIL → implement:** binary check via `ollama --version` (parse semver), daemon via `GET /api/tags` (800 ms timeout), model names joined into details, `friendly: "Ollama — a free app that runs AI models privately on your Mac".to_string()`.
+- [x] **Step 3: Pass, register in `registry()`. Commit** `feat: ollama probe`.
 
 ---
 

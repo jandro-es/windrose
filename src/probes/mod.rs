@@ -9,6 +9,8 @@
 //! the three-state tests first (ready / half-configured / absent), then add it
 //! to [`registry`].
 
+mod ollama;
+
 use crate::model::Detection;
 use crate::sys::SysCtx;
 
@@ -26,9 +28,9 @@ pub trait Probe: Sync {
 }
 
 /// Every probe Windrose knows about, in the order results are presented.
-// Probes are registered here as Tasks 5-8 add them.
+// Further probes are registered here as Tasks 6-8 add them.
 pub fn registry() -> Vec<Box<dyn Probe>> {
-    Vec::new()
+    vec![Box::new(ollama::OllamaProbe)]
 }
 
 /// Run every registered probe against this machine.
