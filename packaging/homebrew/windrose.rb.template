@@ -9,18 +9,18 @@
 # error that looks like a corrupted download.
 class Windrose < Formula
   desc "Discover and assess every AI option on your Mac"
-  homepage "https://github.com/jandro/windrose"
+  homepage "https://github.com/jandro-es/windrose"
   version "@VERSION@"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/jandro/windrose/releases/download/v@VERSION@/windrose-aarch64-apple-darwin.tar.xz"
+      url "https://github.com/jandro-es/windrose/releases/download/v@VERSION@/windrose-aarch64-apple-darwin.tar.xz"
       sha256 "@SHA_ARM@"
     end
 
     on_intel do
-      url "https://github.com/jandro/windrose/releases/download/v@VERSION@/windrose-x86_64-apple-darwin.tar.xz"
+      url "https://github.com/jandro-es/windrose/releases/download/v@VERSION@/windrose-x86_64-apple-darwin.tar.xz"
       sha256 "@SHA_INTEL@"
     end
   end

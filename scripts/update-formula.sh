@@ -22,7 +22,7 @@
 
 set -euo pipefail
 
-REPO="jandro/windrose"
+REPO="jandro-es/windrose"
 ARM_ARTIFACT="windrose-aarch64-apple-darwin.tar.xz"
 INTEL_ARTIFACT="windrose-x86_64-apple-darwin.tar.xz"
 
@@ -139,4 +139,4 @@ echo "Next:"
 echo "  1. Check it:   brew style $output"
 echo "  2. Publish it: copy to the tap repo as Formula/windrose.rb, then"
 echo "                 git commit -m \"windrose $version\" && git push"
-echo "  3. Try it:     brew install jandro/tap/windrose && man windrose"
+echo "  3. Try it:     brew install jandro-es/tap/windrose && man windrose"

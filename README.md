@@ -36,20 +36,20 @@ With [Homebrew](https://brew.sh) — a free tool that installs software from the
 Terminal:
 
 ```bash
-brew install jandro/tap/windrose
+brew install jandro-es/tap/windrose
 ```
 
 Or download it directly:
 
 ```bash
 curl --proto '=https' --tlsv1.2 -LsSf \
-  https://github.com/jandro/windrose/releases/latest/download/windrose-installer.sh | sh
+  https://github.com/jandro-es/windrose/releases/latest/download/windrose-installer.sh | sh
 ```
 
 Or, if you already have Rust:
 
 ```bash
-cargo install --git https://github.com/jandro/windrose
+cargo install --git https://github.com/jandro-es/windrose
 ```
 
 ## Quick start

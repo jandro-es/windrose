@@ -5,9 +5,9 @@ edition = "2024"
 rust-version = "1.85"
 description = "Discover and assess every AI option on your Mac"
 license = "MIT"
-repository = "https://github.com/jandro/windrose"
+repository = "https://github.com/jandro-es/windrose"
 # Used by the generated Homebrew formula.
-homepage = "https://github.com/jandro/windrose"
+homepage = "https://github.com/jandro-es/windrose"
 readme = "README.md"
 keywords = ["ai", "llm", "macos", "tui", "cli"]
 categories = ["command-line-utilities"]

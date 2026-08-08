@@ -109,9 +109,9 @@ tarballs `dist build --artifacts=local` leaves in `target/distrib`.
 
 ### 3. Create the tap repository
 
-Create `jandro/homebrew-tap` on GitHub — public, with a `Formula/` directory and
+Create `jandro-es/homebrew-tap` on GitHub — public, with a `Formula/` directory and
 a README saying what it is. Homebrew requires the `homebrew-` name prefix; users
-then refer to it as `jandro/tap`.
+then refer to it as `jandro-es/tap`.
 
 Nothing but you writes to this repository, so it needs no tokens or secrets.
 
@@ -121,10 +121,10 @@ After the first tag, and after any change to the pipeline, check all four:
 
 ```bash
 # 1. The release exists and has artifacts for both architectures
-open https://github.com/jandro/windrose/releases
+open https://github.com/jandro-es/windrose/releases
 
 # 2. Homebrew
-brew install jandro/tap/windrose
+brew install jandro-es/tap/windrose
 windrose --version
 
 # 3. The manual page came with it
@@ -132,7 +132,7 @@ man windrose
 
 # 4. The curl installer, on a machine without Homebrew
 curl --proto '=https' --tlsv1.2 -LsSf \
-  https://github.com/jandro/windrose/releases/latest/download/windrose-installer.sh | sh
+  https://github.com/jandro-es/windrose/releases/latest/download/windrose-installer.sh | sh
 ```
 
 All four should pass. If `man windrose` fails, check that the formula in the tap

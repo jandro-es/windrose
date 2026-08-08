@@ -22,7 +22,7 @@ aliases: [windrose-plan, ai-options-scanner]
 
 ## Decisions taken (veto any of these before execution)
 
-- **Name: `windrose`** — a compass rose for navigating AI options; consistent with the nautical family (Spinnaker, Pennon). Repo `jandro/windrose`, tap `jandro/homebrew-tap`.
+- **Name: `windrose`** — a compass rose for navigating AI options; consistent with the nautical family (Spinnaker, Pennon). Repo `jandro-es/windrose`, tap `jandro-es/homebrew-tap`.
 - **Sync core, no tokio** — probes are short-lived subprocess/HTTP calls run in `std::thread::scope`; async buys nothing here and doubles complexity.
 - **ureq over reqwest** — small sync HTTP client for localhost probes (Ollama/LM Studio APIs).
 - **cargo-dist** for release automation — it generates the GitHub Release, installers, and the Homebrew formula; the shell scripts wrap it.
@@ -577,9 +577,9 @@ fn help_overlay_toggles_on_question_mark() { /* '?' toggles show_help */ }
 
 **Files:** Create `dist-workspace.toml`, `.github/workflows/release.yml` (generated); Modify `Cargo.toml` (repository/license/description metadata — required by cargo-dist and Homebrew)
 
-**Interfaces:** Consumes tags pushed by `release.sh`. Produces GitHub Release artifacts (per-arch tarballs + installer script) and an auto-updated formula in `jandro/homebrew-tap`.
+**Interfaces:** Consumes tags pushed by `release.sh`. Produces GitHub Release artifacts (per-arch tarballs + installer script) and an auto-updated formula in `jandro-es/homebrew-tap`.
 
-- [x] **Step 1:** `dist init` — targets `aarch64-apple-darwin`, `x86_64-apple-darwin`; installers: `shell` (curl-install for the "directly from GitHub" channel) + `homebrew`; `tap = "jandro/homebrew-tap"`; `publish-jobs = ["homebrew"]`.
+- [x] **Step 1:** `dist init` — targets `aarch64-apple-darwin`, `x86_64-apple-darwin`; installers: `shell` (curl-install for the "directly from GitHub" channel) + `homebrew`; `tap = "jandro-es/homebrew-tap"`; `publish-jobs = ["homebrew"]`.
 - [x] **Step 2:** Configure man-page + docs inclusion: `include = ["man/windrose.1"]`.
   **Correction, verified with `dist plan` and by reading the generated formula (cargo-dist 0.32):**
   (a) do *not* list `README.md`/`LICENSE` — dist auto-includes those, and naming them again ships two
@@ -592,7 +592,7 @@ fn help_overlay_toggles_on_question_mark() { /* '?' toggles show_help */ }
   a throwaway local tap: `man windrose` renders and the page is symlinked into `share/man/man1/`.
   Side benefit — nothing in CI writes to the tap, so no `HOMEBREW_TAP_TOKEN` is needed at all.
 - [ ] **Step 3 (BLOCKED — needs GitHub account access):** Create the `homebrew-tap` repo (with a `Formula/` directory and a README). **The PAT is no longer needed** — the formula is published by hand, so nothing in CI writes to the tap.
-- [ ] **Step 4 (BLOCKED — needs a remote + a published release):** Push a `v0.1.0` pre-release tag on a test run; verify: GH Release has artifacts; `brew install jandro/tap/windrose` works; `man windrose` works post-install; curl installer works. **Commit** `chore: cargo-dist release pipeline`.
+- [ ] **Step 4 (BLOCKED — needs a remote + a published release):** Push a `v0.1.0` pre-release tag on a test run; verify: GH Release has artifacts; `brew install jandro-es/tap/windrose` works; `man windrose` works post-install; curl installer works. **Commit** `chore: cargo-dist release pipeline`.
 
 ---
 
