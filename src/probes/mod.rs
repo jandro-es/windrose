@@ -10,6 +10,7 @@
 //! to [`registry`].
 
 mod apple;
+mod cloud;
 mod llamacpp;
 mod lmstudio;
 mod mlx;
@@ -31,6 +32,21 @@ pub trait Probe: Sync {
     fn detect(&self, sys: &dyn SysCtx) -> Detection;
 }
 
+/// The first version-shaped token in a tool's `--version` output.
+///
+/// Every tool spells this differently — `ollama version is 0.31.0`,
+/// `2.1.226 (Claude Code)`, `codex-cli 0.147.0` — but all of them put a dotted
+/// number somewhere in the output, and the first one is always the tool's own.
+fn first_version_token(raw: &str) -> Option<String> {
+    raw.split_whitespace()
+        .find(|token| token.starts_with(|c: char| c.is_ascii_digit()) && token.contains('.'))
+        .map(|token| {
+            token
+                .trim_end_matches(|c: char| !c.is_ascii_alphanumeric())
+                .to_string()
+        })
+}
+
 /// Every probe Windrose knows about, in the order results are presented.
 ///
 /// Order is grouped by category — the things most people already have first,
@@ -38,13 +54,19 @@ pub trait Probe: Sync {
 /// bottom without regrouping.
 // Further probes are registered here as Tasks 7-8 add them.
 pub fn registry() -> Vec<Box<dyn Probe>> {
-    vec![
+    let mut probes: Vec<Box<dyn Probe>> = vec![
         Box::new(ollama::OllamaProbe),
         Box::new(lmstudio::LmStudioProbe),
         Box::new(llamacpp::LlamaCppProbe),
         Box::new(mlx::MlxProbe),
         Box::new(apple::AppleFmProbe),
-    ]
+    ];
+    probes.extend(
+        cloud::probes()
+            .into_iter()
+            .map(|probe| Box::new(probe) as Box<dyn Probe>),
+    );
+    probes
 }
 
 /// Run every registered probe against this machine.

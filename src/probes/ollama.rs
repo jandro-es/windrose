@@ -74,15 +74,10 @@ impl Probe for OllamaProbe {
 /// Pull the version out of `ollama version is 0.31.0`.
 ///
 /// The real binary appends a warning line when client and server versions
-/// differ, so this takes the first version-shaped token and ignores the rest.
+/// differ, so taking the *first* version-shaped token matters here: the second
+/// one is the client's version, not the server's.
 fn parse_version(raw: &str) -> Option<String> {
-    raw.split_whitespace()
-        .find(|token| token.starts_with(|c: char| c.is_ascii_digit()) && token.contains('.'))
-        .map(|token| {
-            token
-                .trim_end_matches(|c: char| !c.is_ascii_alphanumeric())
-                .to_string()
-        })
+    super::first_version_token(raw)
 }
 
 /// Model names from `/api/tags`. A payload we cannot read is treated as no

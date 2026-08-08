@@ -5,9 +5,6 @@
 //! render them — nothing here knows or cares which frontend is running.
 
 /// How ready an option is to actually be used, right now.
-// Real probes construct these from Task 5 onward (Partial arrives with the
-// cloud probes in Task 8). Remove this allow once the registry is populated.
-#[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
 pub enum Availability {
     /// Installed, running, and usable without further setup.
@@ -22,8 +19,6 @@ pub enum Availability {
 
 /// The four families Windrose groups options into, each with a friendly
 /// heading used by every renderer.
-// As above: populated as Tasks 5-8 add the real probes.
-#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
 pub enum Category {
     /// Apps that run AI models on this Mac — "Runs on your Mac".

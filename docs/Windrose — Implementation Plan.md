@@ -353,7 +353,7 @@ fn intel_mac_reports_partial() { /* macOS 26 + Intel ⇒ Partial("Requires Apple
 
 **Interfaces:** One generic `CloudProbe` struct instantiated per provider from a static table; ids `"claude"`, `"openai"`, `"gemini"`, `"perplexity"`, `"mistral"`, `"groq"`. Category `CloudProvider`.
 
-- [ ] **Step 1: Failing tests:**
+- [x] **Step 1: Failing tests:**
 
 ```rust
 #[test]
@@ -371,7 +371,7 @@ fn claude_fully_configured() {
 fn openai_key_only_is_partial() { /* env set, no CLI/app ⇒ Partial("API key set, no tools installed") */ }
 ```
 
-- [ ] **Step 2: FAIL → implement the provider table:**
+- [x] **Step 2: FAIL → implement the provider table:**
 
 | id | CLI check | Env vars (presence only) | App bundle | Config paths |
 |---|---|---|---|---|
@@ -382,8 +382,14 @@ fn openai_key_only_is_partial() { /* env set, no CLI/app ⇒ Partial("API key se
 | mistral | — | `MISTRAL_API_KEY` | — | — |
 | groq | — | `GROQ_API_KEY` | — | — |
 
-Availability: any CLI or app + credential ⇒ Ready; credential only or tool only ⇒ Partial with a sentence saying which half is missing; nothing ⇒ NotFound. Detail rows are booleans/paths only ("API key found in environment: yes").
-- [ ] **Step 3: Pass, register all six. Commit** `feat: cloud provider probes`.
+Availability: any CLI or app + credential ⇒ Ready; credential only or tool only ⇒ Partial with a sentence saying which half is missing; nothing ⇒ NotFound.
+**Correction, verified on hardware:** "credential" must mean *an environment key **or** the tool's
+settings folder*, not the key alone. Claude Code, codex and gemini all authenticate by subscription
+sign-in and store the session under `~/.claude`, `~/.codex`, `~/.gemini` — no API key variable is ever
+set. The dev machine has all three CLIs signed in and working with zero key variables in the
+environment; keying Ready on the env var alone reported every one of them as half-configured.
+The `Config paths` column above already collected this signal; it just was not used in the rule. Detail rows are booleans/paths only ("API key found in environment: yes").
+- [x] **Step 3: Pass, register all six. Commit** `feat: cloud provider probes`.
 
 ---
 
